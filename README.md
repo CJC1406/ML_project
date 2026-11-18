@@ -16,6 +16,8 @@ The real training partition has now been inspected and preprocessed. Completed w
 
 Not started yet: route/GPS alignment, supervised-label generation, ML training, five-model comparison, Optuna, and the production evaluator workflow.
 
+Phase 3 exploratory training components are now present, but they must be run and reviewed as provisional because the route/GPS alignment is not independently verified.
+
 Dataset-specific column assumptions remain isolated in `pathsnap/data/schema.py`. Put real trips under `data/raw/` only after inspecting their format. Ground-truth route files must stay on the backend/evaluation side and must never be sent to the frontend.
 
 ## Run
