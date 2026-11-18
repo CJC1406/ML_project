@@ -4,7 +4,9 @@ import json
 import time
 from pathlib import Path
 
+import joblib
 import numpy as np
+import sklearn
 import shapely
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.impute import SimpleImputer
@@ -166,6 +168,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dataset", type=Path)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--artifacts-dir", type=Path, help="Export fitted model artifacts")
     args = parser.parse_args()
     train, groups, train_ids, train_stats = load_partition(args.dataset / "train")
     test, _, test_ids, test_stats = load_partition(args.dataset / "student_test")
@@ -192,6 +195,9 @@ def main():
             max_iter=150, learning_rate=0.08, max_leaf_nodes=31, early_stopping=False,
             random_state=SEED),
     }
+    if args.artifacts_dir:
+        args.artifacts_dir.mkdir(parents=True, exist_ok=True)
+
     with threadpool_limits(limits=4):
         for name, model in models.items():
             model.fit(fit_x, fit_y)
@@ -202,6 +208,13 @@ def main():
             start = time.perf_counter()
             probabilities = model.predict_proba(test_x)[:, 1]
             inference_time = time.perf_counter() - start
+            if args.artifacts_dir:
+                path = args.artifacts_dir / f"{name}.joblib"
+                joblib.dump(model, path, compress=3)
+                reloaded = joblib.load(path)
+                np.testing.assert_array_equal(
+                    reloaded.predict_proba(test_x)[:, 1], probabilities
+                )
             results["models"][name] = dict(
                 validation=val_result,
                 student_test=score(probabilities, test_y, test_offsets, test_stats["aligned"]),
@@ -209,6 +222,17 @@ def main():
             if name == "decision_tree":
                 results["models"][name]["feature_importances"] = dict(zip(
                     FEATURES, model[-1].feature_importances_.tolist()))
+    if args.artifacts_dir:
+        manifest = dict(
+            features=FEATURES, positive_class=1, candidate_radius_m=50,
+            max_candidates=8, fitted_training_trips=len(train_ids), seed=SEED,
+            numpy_version=np.__version__, sklearn_version=sklearn.__version__,
+            joblib_version=joblib.__version__,
+            models={name: f"{name}.joblib" for name in models},
+        )
+        (args.artifacts_dir / "manifest.json").write_text(
+            json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+        )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     print(args.out)

@@ -1,0 +1,22 @@
+{
+  "features": [
+    "distance_m",
+    "heading_difference_deg",
+    "speed_mps",
+    "gap_seconds",
+    "candidate_rank",
+    "distance_above_nearest_m"
+  ],
+  "positive_class": 1,
+  "candidate_radius_m": 50,
+  "max_candidates": 8,
+  "fitted_training_trips": 80,
+  "seed": 2026,
+  "numpy_version": "2.3.2",
+  "sklearn_version": "1.7.1",
+  "joblib_version": "1.5.1",
+  "models": {
+    "decision_tree": "decision_tree.joblib",
+    "histogram_gradient_boosting": "histogram_gradient_boosting.joblib"
+  }
+}
