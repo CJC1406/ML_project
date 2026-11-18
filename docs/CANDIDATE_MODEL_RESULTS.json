@@ -1,0 +1,80 @@
+{
+  "seed": 2026,
+  "features": [
+    "distance_m",
+    "heading_difference_deg",
+    "speed_mps",
+    "gap_seconds",
+    "candidate_rank",
+    "distance_above_nearest_m"
+  ],
+  "fit_trips": 64,
+  "validation_trips": 16,
+  "train": {
+    "observations": 208417,
+    "aligned": 143364,
+    "with_candidates": 190187,
+    "aligned_covered": 142911,
+    "candidate_rows": 1084912
+  },
+  "student_test": {
+    "observations": 19160,
+    "aligned": 14058,
+    "with_candidates": 19160,
+    "aligned_covered": 14036,
+    "candidate_rows": 113648
+  },
+  "models": {
+    "decision_tree": {
+      "validation": {
+        "top1": 0.7746977103164394,
+        "correct": 24090,
+        "scored": 31096,
+        "candidate_f1": 0.763715389568577,
+        "candidate_log_loss": 0.2439547127652395
+      },
+      "student_test": {
+        "top1": 0.8532345397549159,
+        "correct": 11976,
+        "scored": 14036,
+        "candidate_f1": 0.8444079064946206,
+        "candidate_log_loss": 0.16625552015530715,
+        "top1_all_aligned": 0.8518992744344857
+      },
+      "fit_seconds": 6.148231300001498,
+      "test_scoring_seconds": 0.011330600013025105,
+      "feature_importances": {
+        "distance_m": 0.008021879102767252,
+        "heading_difference_deg": 0.3363341178028322,
+        "speed_mps": 0.06280954905847576,
+        "gap_seconds": 0.002133343177389775,
+        "candidate_rank": 0.008491120377891388,
+        "distance_above_nearest_m": 0.5822099904806436
+      }
+    },
+    "histogram_gradient_boosting": {
+      "validation": {
+        "top1": 0.7785567275533831,
+        "correct": 24210,
+        "scored": 31096,
+        "candidate_f1": 0.7662505659401073,
+        "candidate_log_loss": 0.21043505881957766
+      },
+      "student_test": {
+        "top1": 0.8544457110287831,
+        "correct": 11993,
+        "scored": 14036,
+        "candidate_f1": 0.8482751239698905,
+        "candidate_log_loss": 0.14133276596983796,
+        "top1_all_aligned": 0.8531085502916489
+      },
+      "fit_seconds": 8.489194799971301,
+      "test_scoring_seconds": 0.36193150002509356
+    }
+  },
+  "nearest_road": {
+    "validation_top1": 0.5457293542577824,
+    "student_test_top1": 0.5577087489313195,
+    "student_test_top1_all_aligned": 0.5568359652866696
+  }
+}
