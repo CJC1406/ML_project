@@ -21,8 +21,8 @@ if ALLOWED_ORIGINS:
 
 
 class PredictionRequest(BaseModel):
-    model_name: str = "logistic_regression"
-    sequence_method: str = "hmm_viterbi"
+    model: str = "logistic_regression"
+    trip_id: str
 
 
 class ModelRegistry:
@@ -60,29 +60,34 @@ def health():
 
 @app.get("/trips")
 def trips():
-    return {"partition":"configured_evaluator_root","trip_ids":permitted_trip_ids()}
+    return {"trips":permitted_trip_ids(),"partition":"configured_evaluator_root"}
 
 
 @app.get("/models")
 def models():
-    return {"models":[{"model_name":name,"available":item["available"],"artifact_path":item["artifact_path"]} for name,item in registry.models.items()]}
+    return {"models":list(registry.models)}
 
 
-@app.get("/models/metrics")
-def model_metrics():
+@app.get("/metrics")
+def metrics():
     metrics=MODEL_PATH.parent / "metrics.json"
-    return {"metrics":metrics.read_text() if metrics.is_file() else None,"protocol":"EXPLORATORY provisional alignment metrics" if metrics.is_file() else None}
+    if not metrics.is_file(): return {"metrics":[]}
+    import json
+    data=json.loads(metrics.read_text())
+    folds=data.get("folds",[])
+    return {"metrics":[{"model":"logistic_regression","accuracy":sum(x.get("accuracy",0) for x in folds)/len(folds) if folds else None,"precision":sum(x.get("precision",0) for x in folds)/len(folds) if folds else None,"recall":sum(x.get("recall",0) for x in folds)/len(folds) if folds else None,"macro_f1":sum(x.get("macro_f1",0) for x in folds)/len(folds) if folds else None,"log_loss":sum(x.get("log_loss",0) for x in folds)/len(folds) if folds else None,"protocol":"EXPLORATORY provisional alignment metrics"}]}
 
 
-@app.post("/predict/{trip_id}")
-def predict(trip_id: str, request: PredictionRequest):
+@app.post("/predict")
+def predict(request: PredictionRequest):
+    trip_id=request.trip_id
     if trip_id not in permitted_trip_ids(): raise HTTPException(404, detail="Trip is not permitted")
-    item=registry.get(request.model_name); started=time.perf_counter(); trip=load_trip(TRAIN_ROOT/trip_id); road=build_road_geometry(trip.nodes,trip.arcs); candidates=generate_candidates(trip.track,road,50,8)
+    item=registry.get(request.model); started=time.perf_counter(); trip=load_trip(TRAIN_ROOT/trip_id); road=build_road_geometry(trip.nodes,trip.arcs); candidates=generate_candidates(trip.track,road,50,8)
     rows=candidate_features(trip.track,road,candidates); warnings=[]
     if not rows: warnings.append("no_candidates")
     frame=pd.DataFrame(rows); predicted=[]
     if not frame.empty:
         x=frame.reindex(columns=FEATURE_NAMES).replace([float("inf"),float("-inf")],float("nan")).fillna(0.0); model=item["model"]; probs=model.predict_proba(x); classes=list(model.classes_); positive=classes.index(1) if 1 in classes else probs.shape[1]-1; frame["probability"]=probs[:,positive]
         for _,group in frame.groupby("observation_index",sort=True): predicted.append(int(group.sort_values(["probability","distance_m","arc_id"],ascending=[False,True,True]).iloc[0].arc_id))
-    if request.sequence_method == "hmm_viterbi": warnings.append("hmm_transition_model_unavailable_classifier_only_fallback")
-    return {"trip_id":trip_id,"model_name":request.model_name,"sequence_method":"classifier_only_fallback" if request.sequence_method=="hmm_viterbi" else request.sequence_method,"predicted_arc_ids":predicted,"route_geojson":geojson_for_arcs(road,predicted),"inference_time_ms":(time.perf_counter()-started)*1000,"warnings":warnings,"evaluation":None}
+    warnings.append("hmm_transition_model_unavailable_classifier_only_fallback")
+    return {"trip_id":trip_id,"model":request.model,"sequence_method":"classifier_only_fallback","predicted_arc_ids":predicted,"route_geojson":geojson_for_arcs(road,predicted),"inference_time_ms":(time.perf_counter()-started)*1000,"warnings":warnings,"evaluation":None}
