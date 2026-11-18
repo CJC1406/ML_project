@@ -16,6 +16,16 @@ def parse_timestamps(values: pd.Series) -> pd.Series:
     return result
 
 
+def integer_ids(values: pd.Series, field: str, report: ValidationReport) -> set[int]:
+    numeric = pd.to_numeric(values, errors="coerce")
+    bad = numeric.isna() | (numeric % 1 != 0)
+    if bad.any():
+        rows = [int(i) for i in values.index[bad][:5]]
+        report.errors.append(f"{field} contains non-integer IDs at rows {rows}")
+        return set()
+    return set(numeric.astype("int64"))
+
+
 @dataclass
 class ValidationReport:
     trip_id: str
@@ -42,12 +52,14 @@ def validate_trip(trip: TripData) -> ValidationReport:
         if times.isna().any(): r.errors.append("track contains invalid timestamps")
         if not times.is_monotonic_increasing: r.errors.append("track timestamps are not ordered")
         if trip.track.duplicated().any(): r.warnings.append("track contains duplicate observations")
-    node_ids = set(pd.to_numeric(trip.nodes.node_id, errors="coerce").dropna().astype(int))
+    node_ids = integer_ids(trip.nodes.node_id, "node_id", r)
     if not trip.arcs.empty:
-        refs = set(pd.to_numeric(trip.arcs.from_node_id, errors="coerce").dropna().astype(int)) | set(pd.to_numeric(trip.arcs.to_node_id, errors="coerce").dropna().astype(int))
+        from_ids = integer_ids(trip.arcs.from_node_id, "from_node_id", r)
+        to_ids = integer_ids(trip.arcs.to_node_id, "to_node_id", r)
+        refs = from_ids | to_ids
         if not refs.issubset(node_ids): r.errors.append("arcs reference nodes outside the zero-based node table")
-    arc_ids = set(pd.to_numeric(trip.arcs.arc_id, errors="coerce").dropna().astype(int))
+    arc_ids = integer_ids(trip.arcs.arc_id, "arc_id", r)
     if not trip.route.empty:
-        route_ids = set(pd.to_numeric(trip.route.arc_id, errors="coerce").dropna().astype(int))
+        route_ids = integer_ids(trip.route.arc_id, "route.arc_id", r)
         if not route_ids.issubset(arc_ids): r.errors.append("route references arcs outside the zero-based arc table")
     return r
