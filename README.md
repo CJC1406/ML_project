@@ -45,7 +45,7 @@ Run the test suite with:
 
 Expected current result: `10 passed`.
 
-The API and React application are intentionally separate: Laptop 1 runs the Python service; Laptop 2 runs the evaluator UI. See `docs/architecture.md`.
+The API and React application are intentionally separate: Laptop 1 runs the Python service (`scripts/run_backend.sh`); Laptop 2 runs the evaluator UI (`frontend/README.md`). See `docs/architecture.md` and `docs/BACKEND_API.md`.
 
 ## Planned, evidence-backed phases
 
