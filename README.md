@@ -12,6 +12,7 @@ This first slice is runnable before the competition dataset arrives:
 - a small FastAPI service surface (optional dependency);
 - a browser frontend stub that calls the API;
 - tests for validation and route reconstruction.
+- reusable EDA, road geometry, candidate generation, and Folium map utilities.
 
 Dataset-specific column assumptions remain isolated in `pathsnap/data/schema.py`. Put real trips under `data/raw/` only after inspecting their format. Ground-truth route files must stay on the backend/evaluation side and must never be sent to the frontend.
 
@@ -22,6 +23,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/pytest
 .venv/bin/python -m pathsnap.cli validate data/raw
+.venv/bin/python -c 'from pathlib import Path; from src.eda import explore_dataset; explore_dataset(Path("data/raw"), Path("data/processed/eda.json"))'
 ```
 
 The API and React application are intentionally separate: Laptop 1 runs the Python service; Laptop 2 runs the evaluator UI. See `docs/architecture.md`.
@@ -35,6 +37,13 @@ The API and React application are intentionally separate: Laptop 1 runs the Pyth
 5. Integrate the trained scorer with HMM/Viterbi, Folium, FastAPI, and the evaluator UI.
 
 No model metrics are reported until real data has been loaded and evaluated.
+
+Phase 2 candidate generation uses a spatial index for coarse nearby-segment queries,
+then ranks candidates by metre-scale point-to-segment distance and optional heading
+difference. It is deterministic and preserves observations with no candidates by
+returning no rows for that observation. The current distance conversion is a local
+equirectangular approximation; a region-specific projected CRS must be selected after
+the real dataset is inspected.
 
 ## Final repository shape
 
