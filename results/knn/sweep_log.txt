@@ -1,0 +1,5 @@
+k=  1 distance train F1=1.0000  val F1=0.8722±0.0294  val top1=0.7972  val logloss=0.9162  (0.8 min)
+k=  5 distance train F1=1.0000  val F1=0.8937±0.0302  val top1=0.8260  val logloss=0.3015  (1.5 min)
+k= 25 distance train F1=1.0000  val F1=0.9008±0.0287  val top1=0.8426  val logloss=0.1674  (2.2 min)
+k=101 distance train F1=1.0000  val F1=0.8953±0.0284  val top1=0.8398  val logloss=0.1475  (3.0 min)
+k= 25 uniform  train F1=0.9086  val F1=0.9001±0.0286  val top1=0.8426  val logloss=0.1687  (2.2 min)

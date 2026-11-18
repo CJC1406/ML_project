@@ -89,3 +89,13 @@ experiments/     # configs, logs and results, no invented values
 tests/           # unit and integration tests
 docs/            # decisions and two-laptop deployment
 ```
+
+## KNN model (candidate classifier)
+```bash
+export PATHSNAP_DATA_ROOT=/path/to/dataset      # folder containing train/ and student_test/
+python3 scripts/build_candidate_features.py     # ~40 s, builds data/processed/candidate_features/
+python3 scripts/knn/run_knn.py --quick          # fast demo (~2 min)
+python3 scripts/knn/run_knn.py                  # full run: CV + student test + sequence metrics (~6 min)
+python3 scripts/knn/knn_sweep.py                # k sweep for over/underfitting evidence (~10 min)
+```
+Outputs: `results/knn/` · Report section: `docs/report/knn.md`
