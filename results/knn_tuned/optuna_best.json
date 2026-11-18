@@ -1,0 +1,46 @@
+{
+  "n_trials": 40,
+  "n_pruned": 18,
+  "protocol": "5-fold GroupKFold by trip, validation every 20th observation, TPE seed 42",
+  "baseline": {
+    "params": {
+      "n_neighbors": 25,
+      "weights": "distance",
+      "p": 2,
+      "w_dist": 1.0,
+      "w_head": 1.0,
+      "w_cont": 1.0,
+      "w_ctx": 1.0
+    },
+    "cv_macro_f1": 0.8994610182406874,
+    "f1_std": 0.030702203608375445,
+    "top1": 0.8398501414787235,
+    "log_loss": 0.17064156708771805
+  },
+  "best": {
+    "trial": 32,
+    "params": {
+      "n_neighbors": 31,
+      "weights": "distance",
+      "p": 2,
+      "w_dist": 0.34224753673027497,
+      "w_head": 1.1902407287269776,
+      "w_cont": 1.0338966196463366,
+      "w_ctx": 0.1550997180250869
+    },
+    "cv_macro_f1": 0.9005638511068079,
+    "f1_std": 0.03093172281470556,
+    "top1": 0.841791135482646,
+    "log_loss": 0.1613598810513716
+  },
+  "minutes": 10.25523930695,
+  "param_importance": {
+    "w_ctx": 0.3621738871879042,
+    "w_head": 0.22259888415449858,
+    "n_neighbors": 0.2030507344507794,
+    "w_cont": 0.11637953063889547,
+    "w_dist": 0.08670512890819795,
+    "p": 0.007866983357680352,
+    "weights": 0.0012248513020439837
+  }
+}

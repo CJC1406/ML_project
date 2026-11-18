@@ -1,0 +1,12 @@
+{
+  "alpha": 0.11894742147441108,
+  "beta": 7.569367524707451,
+  "max_gap_s": 60.0,
+  "transition_limit": "2 * gps distance + 200 m",
+  "route_fill_limit_m": 2000.0,
+  "tuned_on": "80 training trips, out-of-fold stacking probabilities",
+  "objective": "observation Top-1 over labelled readings",
+  "n_trials": 25,
+  "tuning_minutes": 1.9271010267833237,
+  "probability_model": "stacking"
+}

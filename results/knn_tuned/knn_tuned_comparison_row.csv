@@ -1,0 +1,2 @@
+Model,Algorithm Family,Key Configuration,CV Macro F1,Top-1 Accuracy,Route continuity,Student-Test Macro F1,Log Loss,Inference Time
+KNN (Optuna-tuned),Instance-based (non-parametric),"k=31, distance-weighted, Euclidean, StandardScaler + feature-group weights (dist 0.34, heading 1.19, continuity 1.03, context 0.16), every 5th observation, threshold 0.425",0.905 ± 0.030,0.857,0.808,0.913,0.130,68.8 s (131,570 candidate rows)

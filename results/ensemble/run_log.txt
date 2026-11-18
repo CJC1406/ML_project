@@ -1,0 +1,21 @@
+boosting settings: {'learning_rate': 0.018058225379893354, 'max_iter': 250, 'max_leaf_nodes': 106, 'min_samples_leaf': 159, 'l2_regularization': 0.000615199922151719, 'max_features': 0.41025147111294274, 'max_depth': 14}
+fold 0: logistic_regression=0.8824  knn_tuned=0.8803  decision_tree=0.8926  hist_gradient_boosting=0.8998  soft_vote=0.8988
+fold 1: logistic_regression=0.8575  knn_tuned=0.8612  decision_tree=0.8717  hist_gradient_boosting=0.8774  soft_vote=0.8741
+fold 2: logistic_regression=0.8573  knn_tuned=0.8530  decision_tree=0.8656  hist_gradient_boosting=0.8665  soft_vote=0.8663
+fold 3: logistic_regression=0.7784  knn_tuned=0.7839  decision_tree=0.7761  hist_gradient_boosting=0.7859  soft_vote=0.7889
+fold 4: logistic_regression=0.8628  knn_tuned=0.8605  decision_tree=0.8736  hist_gradient_boosting=0.8826  soft_vote=0.8771
+stacking folds: 0.9006 0.8780 0.8662 0.7859 0.8827
+refit logistic_regression: 1200124 rows, 3.4s
+refit knn_tuned: 240350 rows, 0.5s
+refit decision_tree: 1200124 rows, 23.9s
+refit hist_gradient_boosting: 1200124 rows, 26.3s
+
+model                              CV top1 test top1  test F1  logloss  routeF1  contin.
+Logistic Regression        0.8477 ± 0.0358    0.8521   0.8257   0.2354   0.9032   0.7796
+KNN (Optuna-tuned)         0.8478 ± 0.0332    0.8567   0.9125   0.1310   0.9038   0.8069
+Decision Tree              0.8559 ± 0.0409    0.8634   0.9166   0.1029   0.9177   0.8013
+Hist. Gradient Boosting (Optuna-tuned) 0.8624 ± 0.0397    0.8721   0.9220   0.0932   0.9227   0.8283
+Ensemble: soft vote        0.8610 ± 0.0377    0.8646   0.9196   0.1145   0.9165   0.8164
+Ensemble: stacking         0.8627 ± 0.0400    0.8718   0.9220   0.0921   0.9224   0.8289
+
+chosen ensemble: stacking; stacking weights: {'logistic_regression': -0.024630130674269633, 'knn_tuned': 0.02510865989283645, 'decision_tree': 0.05220579174954832, 'hist_gradient_boosting': 0.973178778144282}

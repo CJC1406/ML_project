@@ -1,0 +1,467 @@
+<!doctype html><html><head><meta charset='utf-8'><title>PathSnap technical report</title><style>
+@page { size: A4; margin: 18mm 16mm; }
+body { font: 10.5pt/1.45 -apple-system, "Helvetica Neue", Arial, sans-serif; color: #111; }
+h1 { font-size: 20pt; margin: 0 0 4pt; } h2 { font-size: 14pt; margin: 18pt 0 6pt; border-bottom: 1px solid #ccc; padding-bottom: 2pt; }
+h3 { font-size: 11.5pt; margin: 12pt 0 4pt; }
+table { border-collapse: collapse; margin: 6pt 0 10pt; font-size: 9pt; page-break-inside: avoid; }
+th, td { border: 1px solid #d0d0d0; padding: 3pt 6pt; } th { background: #f2f2f2; text-align: left; }
+td { font-variant-numeric: tabular-nums; }
+img { max-width: 100%; page-break-inside: avoid; display: block; margin: 6pt auto; }
+code { font-size: 9pt; background: #f4f4f4; padding: 0 2pt; } pre { background: #f4f4f4; padding: 6pt; font-size: 8.5pt; white-space: pre-wrap; }
+blockquote { color: #444; border-left: 3px solid #ccc; margin: 0; padding-left: 8pt; }
+</style></head><body><h1 id="pathsnap-map-matching-and-route-reconstruction">PathSnap: map-matching and route reconstruction</h1>
+<p><strong>Course:</strong> UE24CS352A, PES University. <strong>Repository:</strong> this repository; every number below is produced by a script under <code>scripts/</code> and stored under <code>results/</code>.</p>
+<h2 id="1-problem">1. Problem</h2>
+<p>A vehicle's GPS track is a sequence of noisy points. PathSnap infers which directed road arc of the supplied network the vehicle was on at each point, then reconstructs the connected sequence of arcs it drove. GPS noise, multipath near buildings, sampling gaps and parallel or two-way roads make the nearest road wrong in about 45 % of readings, so the system combines a learned candidate scorer with a hidden Markov model (HMM) decoded by Viterbi.</p>
+<h2 id="2-data">2. Data</h2>
+<p>Each trip folder has four headerless, whitespace-separated files. Node and arc IDs are zero-based row indices and are preserved.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Columns</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.track</code></td>
+<td>longitude, latitude, elapsed seconds</td>
+<td>prediction input</td>
+</tr>
+<tr>
+<td><code>.nodes</code></td>
+<td>longitude, latitude</td>
+<td>prediction input</td>
+</tr>
+<tr>
+<td><code>.arcs</code></td>
+<td>from-node, to-node (directed)</td>
+<td>prediction input</td>
+</tr>
+<tr>
+<td><code>.route</code></td>
+<td>ordered arc IDs</td>
+<td>labels and evaluation only</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Partition</th>
+<th style="text-align: right;">Trips</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training</td>
+<td style="text-align: right;">80</td>
+<td>fitting, 5-fold cross-validation grouped by trip, all tuning</td>
+</tr>
+<tr>
+<td>Student test</td>
+<td style="text-align: right;">10</td>
+<td>one final comparison per model</td>
+</tr>
+<tr>
+<td>Evaluator test</td>
+<td style="text-align: right;">10</td>
+<td>never read during development</td>
+</tr>
+</tbody>
+</table>
+<p>The training partition has 208,417 GPS readings, 1.93 million nodes and 3.88 million arcs, with no missing files, malformed rows or invalid references (<code>docs/DATASET_EXPLORATION_FINDINGS.md</code>). Sampling is normally 1 Hz, but 590 gaps exceed 10 s and the longest is 153,064 s. Road networks have between 1 and 421 weakly connected components and contain parallel directed arcs, so connectivity is checked explicitly and arc identity is kept.</p>
+<h2 id="3-candidates-labels-and-features">3. Candidates, labels and features</h2>
+<p>Implementation: <code>src/pathsnap/features/candidate_features.py</code>.</p>
+<ul>
+<li><strong>Projection.</strong> Each trip is projected to a local equirectangular plane in metres, centred on the track. Trips span under about 80 km, where the distance error stays well below 1 %.</li>
+<li><strong>Candidates.</strong> Every arc within 50 m of a reading, nearest 10 kept, found with a KD-tree over points spaced 10 m along each arc. Both directions of a two-way road are separate candidates. The candidate miss rate (labelled readings whose true arc is not among the candidates) is 0.13 % on student test.</li>
+<li><strong>Labels.</strong> The <code>.route</code> file lists arcs in order but does not say which reading belongs to which arc. A monotone dynamic programme aligns readings to route arcs, minimising point-to-arc distance while both indices only move forward. Readings whose aligned arc is more than 50 m away are unlabelled and excluded from training and scoring. These are derived labels, not independently surveyed ground truth.</li>
+<li><strong>Features (15)</strong>, all computed from the track and the map only:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distance</td>
+<td><code>dist</code>, <code>dist_rank</code>, <code>dist_minus_min</code>, <code>win_dist</code> (mean distance of readings i-3..i+3 to the arc)</td>
+</tr>
+<tr>
+<td>Heading</td>
+<td><code>cos_heading</code> (vehicle heading vs arc direction), <code>heading_ok</code> (vehicle moved more than 2 m)</td>
+</tr>
+<tr>
+<td>Motion</td>
+<td><code>speed</code>, <code>dt_prev</code></td>
+</tr>
+<tr>
+<td>Arc and network</td>
+<td><code>arc_len</code>, <code>proj_t</code> (position along the arc), <code>n_cand</code>, <code>junction_deg</code>, <code>has_reverse</code></td>
+</tr>
+<tr>
+<td>Continuity</td>
+<td><code>cont_prev</code>, <code>cont_next</code> (does the arc touch the nearest arc of the neighbouring readings)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-evaluation-protocol">4. Evaluation protocol</h2>
+<ul>
+<li><strong>Cross-validation:</strong> 5-fold <code>GroupKFold</code> with trips as groups, so no trip is split between training and validation. Validation scores every 3rd reading with all of its candidates.</li>
+<li><strong>Student test:</strong> every model is refit on all 80 training trips and scored once on the 10 student-test trips. No decision used student-test numbers.</li>
+<li><strong>Metrics:</strong> row-level accuracy, precision, recall, macro F1, log loss and confusion matrix (threshold 0.5); reading-level Top-1 accuracy (the highest-scored candidate is the aligned arc; readings without candidates count as wrong); candidate miss rate; and route-level precision, recall, F1 and Newson–Krumm mismatch fraction, all length-weighted in metres, plus route continuity (share of consecutive route arcs that touch).</li>
+</ul>
+<h2 id="5-candidate-models">5. Candidate models</h2>
+<p>Four independently configured model families score candidates. All of them read the same 15 features and use the same folds, so their numbers are directly comparable. Full details are in <code>docs/report/ensemble.md</code>, <code>docs/report/knn.md</code> and <code>docs/report/hgb_tuning.md</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Family</th>
+<th>Configuration</th>
+<th>Training rows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic Regression</td>
+<td>Linear</td>
+<td>StandardScaler, balanced class weights</td>
+<td>every reading</td>
+</tr>
+<tr>
+<td>KNN</td>
+<td>Instance-based</td>
+<td>Optuna-tuned: k = 31, distance weights, feature-group multipliers</td>
+<td>every 5th reading</td>
+</tr>
+<tr>
+<td>Decision Tree</td>
+<td>Tree</td>
+<td>depth 12, at least 30 rows per leaf</td>
+<td>every reading</td>
+</tr>
+<tr>
+<td>Histogram Gradient Boosting</td>
+<td>Boosted trees</td>
+<td>Optuna-tuned: 250 iterations, learning rate 0.018, 106 leaves, depth 14</td>
+<td>every reading</td>
+</tr>
+</tbody>
+</table>
+<p>Two ensembles combine them:</p>
+<ul>
+<li><strong>Soft vote:</strong> an equal-weight average of the four probabilities.</li>
+<li><strong>Stacking:</strong> a logistic regression trained on out-of-fold base probabilities.</li>
+</ul>
+<h3 id="results-before-sequence-decoding">Results before sequence decoding</h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>CV Top-1</th>
+<th style="text-align: right;">Test Top-1</th>
+<th style="text-align: right;">Test macro F1</th>
+<th style="text-align: right;">Test log loss</th>
+<th style="text-align: right;">Fit</th>
+<th style="text-align: right;">Test scoring</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic Regression</td>
+<td>84.77 ± 3.58 %</td>
+<td style="text-align: right;">85.21 %</td>
+<td style="text-align: right;">0.826</td>
+<td style="text-align: right;">0.235</td>
+<td style="text-align: right;">3 s</td>
+<td style="text-align: right;">0.06 s</td>
+</tr>
+<tr>
+<td>KNN (Optuna-tuned)</td>
+<td>84.78 ± 3.32 %</td>
+<td style="text-align: right;">85.67 %</td>
+<td style="text-align: right;">0.912</td>
+<td style="text-align: right;">0.131</td>
+<td style="text-align: right;">0.5 s</td>
+<td style="text-align: right;">51 s</td>
+</tr>
+<tr>
+<td>Decision Tree</td>
+<td>85.59 ± 4.09 %</td>
+<td style="text-align: right;">86.34 %</td>
+<td style="text-align: right;">0.917</td>
+<td style="text-align: right;">0.103</td>
+<td style="text-align: right;">24 s</td>
+<td style="text-align: right;">0.03 s</td>
+</tr>
+<tr>
+<td>Hist. Gradient Boosting (tuned)</td>
+<td>86.24 ± 3.97 %</td>
+<td style="text-align: right;"><strong>87.21 %</strong></td>
+<td style="text-align: right;"><strong>0.922</strong></td>
+<td style="text-align: right;">0.093</td>
+<td style="text-align: right;">26 s</td>
+<td style="text-align: right;">0.7 s</td>
+</tr>
+<tr>
+<td>Ensemble: soft vote</td>
+<td>86.10 ± 3.77 %</td>
+<td style="text-align: right;">86.46 %</td>
+<td style="text-align: right;">0.920</td>
+<td style="text-align: right;">0.115</td>
+<td style="text-align: right;">54 s</td>
+<td style="text-align: right;">52 s</td>
+</tr>
+<tr>
+<td><strong>Ensemble: stacking</strong></td>
+<td><strong>86.27 ± 4.00 %</strong></td>
+<td style="text-align: right;">87.18 %</td>
+<td style="text-align: right;"><strong>0.922</strong></td>
+<td style="text-align: right;"><strong>0.092</strong></td>
+<td style="text-align: right;">54 s</td>
+<td style="text-align: right;">52 s</td>
+</tr>
+</tbody>
+</table>
+<p>For reference, always choosing the nearest candidate is right for only 54.5 % of labelled student-test readings (55.6 % on training).</p>
+<p><img alt="Top-1 per model" src="../../results/ensemble/all_models_top1.png" /></p>
+<h3 id="over-and-underfitting">Over- and underfitting</h3>
+<ul>
+<li><strong>Cross-validation and test agree.</strong> Test Top-1 is 0.4 to 1.0 points above the cross-validation mean for every model, inside one fold standard deviation. The student-test trips are slightly easier than the hardest training folds, and no model shows a train-to-test collapse.</li>
+<li><strong>KNN at k = 1 overfits.</strong> Its validation log loss is 0.92 because the hard 0/1 votes make mistakes confidently wrong. k = 31 is the tuned compromise. See the sweep in <code>docs/report/knn.md</code>.</li>
+<li><strong>The decision tree is constrained</strong> to depth 12 with at least 30 rows per leaf. The tuned booster uses strong regularisation: 159 rows per leaf, feature subsampling and a low learning rate.</li>
+<li><strong>Fold spread comes from trip difficulty.</strong> Fold 3 is the hardest for every model, at about 78 % Top-1, which points to the trips rather than to model variance.</li>
+</ul>
+<h2 id="6-bayesian-hyperparameter-optimisation">6. Bayesian hyperparameter optimisation</h2>
+<p>Optuna's TPE sampler (seed 42) was used for both tuned models. The objective was always measured on 5-fold trip-grouped cross-validation of the training trips. The untuned configuration was enqueued as trial 0, so tuned and untuned results come from the identical protocol. Student-test and evaluator trips were never used during any search.</p>
+<table>
+<thead>
+<tr>
+<th>Study</th>
+<th style="text-align: right;">Trials</th>
+<th>Objective</th>
+<th>Untuned → tuned (CV)</th>
+<th>Untuned → tuned (student test)</th>
+<th style="text-align: right;">Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KNN</td>
+<td style="text-align: right;">40 (18 pruned)</td>
+<td>macro F1</td>
+<td>0.901 → 0.905</td>
+<td>Top-1 85.3 → 85.7 %</td>
+<td style="text-align: right;">10 min</td>
+</tr>
+<tr>
+<td>Hist. Gradient Boosting</td>
+<td style="text-align: right;">40 (2 pruned)</td>
+<td>Top-1</td>
+<td>85.91 → 86.24 %</td>
+<td>Top-1 87.04 → 87.21 %, log loss 0.097 → 0.093</td>
+<td style="text-align: right;">185 min</td>
+</tr>
+<tr>
+<td>HMM α, β</td>
+<td style="text-align: right;">25</td>
+<td>Top-1 after decoding</td>
+<td>92.0 → 93.1 % (training, out-of-fold)</td>
+<td>see section 7</td>
+<td style="text-align: right;">2 min</td>
+</tr>
+</tbody>
+</table>
+<p>Both classifier studies converged with small gains, well inside the fold-to-fold spread. The defaults were already near what these features allow. The more useful effect was better-calibrated probabilities (lower log loss), which the HMM consumes directly.</p>
+<p><img alt="Gradient boosting study" src="../../results/hgb_tuned/optuna_history.png" /></p>
+<h2 id="7-hmm-viterbi-and-route-reconstruction">7. HMM, Viterbi and route reconstruction</h2>
+<p>The full write-up is in <code>docs/report/hmm.md</code>.</p>
+<ul>
+<li><strong>Model.</strong> Hidden states are each reading's candidate arcs. Emissions are α · log of the classifier probability, normalised over the reading's candidates. Transitions follow Newson and Krumm (2009): log T = −|road distance − GPS distance| / β. Road distance runs through the directed network from the projected position on one arc to the projected position on the next.</li>
+<li><strong>Constraints.</strong> Unreachable arcs get probability zero. The chain restarts at gaps over 60 s, at readings without candidates, or when no finite transition exists.</li>
+<li><strong>Reconstruction.</strong> Viterbi gives one arc per reading. Repeats are collapsed, and arcs that do not touch are joined by the shortest network path.</li>
+<li><strong>Tuning.</strong> α = 0.119 and β = 7.57 m were tuned on training trips with out-of-fold probabilities.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Probabilities from</th>
+<th style="text-align: right;">Top-1, classifier only</th>
+<th style="text-align: right;">Top-1, + HMM</th>
+<th style="text-align: right;">Route F1, classifier only</th>
+<th style="text-align: right;">Route F1, + HMM</th>
+<th style="text-align: right;">Mismatch, classifier only</th>
+<th style="text-align: right;">Mismatch, + HMM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logistic Regression</td>
+<td style="text-align: right;">85.21 %</td>
+<td style="text-align: right;">91.79 %</td>
+<td style="text-align: right;">0.830</td>
+<td style="text-align: right;">0.986</td>
+<td style="text-align: right;">0.448</td>
+<td style="text-align: right;">0.028</td>
+</tr>
+<tr>
+<td>KNN (Optuna-tuned)</td>
+<td style="text-align: right;">85.67 %</td>
+<td style="text-align: right;">91.28 %</td>
+<td style="text-align: right;">0.833</td>
+<td style="text-align: right;">0.987</td>
+<td style="text-align: right;">0.436</td>
+<td style="text-align: right;">0.028</td>
+</tr>
+<tr>
+<td>Decision Tree</td>
+<td style="text-align: right;">86.34 %</td>
+<td style="text-align: right;">92.03 %</td>
+<td style="text-align: right;">0.847</td>
+<td style="text-align: right;">0.987</td>
+<td style="text-align: right;">0.391</td>
+<td style="text-align: right;">0.026</td>
+</tr>
+<tr>
+<td>Hist. Gradient Boosting (tuned)</td>
+<td style="text-align: right;">87.21 %</td>
+<td style="text-align: right;">93.58 %</td>
+<td style="text-align: right;">0.860</td>
+<td style="text-align: right;">0.988</td>
+<td style="text-align: right;">0.348</td>
+<td style="text-align: right;">0.026</td>
+</tr>
+<tr>
+<td>Ensemble: soft vote</td>
+<td style="text-align: right;">86.46 %</td>
+<td style="text-align: right;">92.45 %</td>
+<td style="text-align: right;">0.847</td>
+<td style="text-align: right;">0.987</td>
+<td style="text-align: right;">0.390</td>
+<td style="text-align: right;">0.028</td>
+</tr>
+<tr>
+<td><strong>Ensemble: stacking</strong></td>
+<td style="text-align: right;">87.18 %</td>
+<td style="text-align: right;"><strong>93.64 %</strong></td>
+<td style="text-align: right;">0.862</td>
+<td style="text-align: right;">0.987</td>
+<td style="text-align: right;">0.344</td>
+<td style="text-align: right;"><strong>0.026</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The HMM adds 6 to 7 Top-1 points for every model and cuts route mismatch by more than 90 %. With stacking it reaches route precision 0.978, recall 0.997 and continuity 0.999. Decoding all 10 student-test trips takes 0.47 s.</p>
+<h2 id="8-final-model">8. Final model</h2>
+<p>The deployed default is <strong>stacking-ensemble probabilities decoded by the HMM</strong>. The choice rests on these points:</p>
+<ol>
+<li>
+<p>It has the highest cross-validation Top-1 of all models (86.27 %) and the lowest log loss. Both selection criteria were fixed before the student-test run.</p>
+</li>
+<li>
+<p>On the student test it gives the best reading-level Top-1 after decoding (93.64 %) and joint-best route mismatch (0.026).</p>
+</li>
+<li>Its meta-learner gives tuned boosting a weight of 0.97, so it behaves almost exactly like tuned boosting. Tuned boosting alone is within 0.06 points on every metric and about 80 times faster to score, because it does not run the KNN. The backend exposes both, and boosting is the recommended choice when response time matters.</li>
+</ol>
+<h2 id="9-geographical-visualisation">9. Geographical visualisation</h2>
+<p><code>scripts/make_maps.py</code> writes an interactive Folium map for every student-test trip to <code>results/maps/&lt;trip&gt;.html</code>. Each map has a layer control for:</p>
+<ul>
+<li>the GPS readings;</li>
+<li>the road network near the track;</li>
+<li>the reference route;</li>
+<li>the classifier-only route;</li>
+<li>the HMM/Viterbi route;</li>
+<li>start and end markers.</li>
+</ul>
+<p>The backend serves the same kind of map at <code>/map/{trip_id}</code> without the reference layer.</p>
+<p><img alt="Trip 77: reference (green), classifier-only (orange), HMM (blue), GPS (red)" src="../../results/maps/00000077.png" /></p>
+<p><img alt="Trip 56" src="../../results/maps/00000056.png" /></p>
+<p><img alt="Trip 9" src="../../results/maps/00000009.png" /></p>
+<h2 id="10-deployment-two-laptops">10. Deployment: two laptops</h2>
+<pre><code class="language-text">Laptop 2 (browser)  -&gt;  Vite dev server :5173  --/api/* proxy--&gt;  Laptop 1 FastAPI :8000
+                                                                    |-- models/pathsnap_v1 (bundle)
+                                                                    |-- evaluator trip folders
+</code></pre>
+<ul>
+<li><strong>Laptop 1</strong> runs <code>scripts/run_backend.sh</code>. The FastAPI app loads the versioned bundle from <code>models/pathsnap_v1/</code> and checks every file against the SHA-256 in <code>manifest.json</code>. It lists the permitted trips under <code>PATHSNAP_EVALUATOR_ROOT</code>.</li>
+<li><strong>Predictions run the full pipeline.</strong> For each request the backend computes candidates and features, model probabilities, HMM/Viterbi decoding and route reconstruction, and returns the route as arc IDs and GeoJSON. Prediction reads only <code>.nodes</code>, <code>.arcs</code> and <code>.track</code>.</li>
+<li><strong>Evaluation stays on Laptop 1.</strong> If a trip has a <code>.route</code> file there, the server computes route precision, recall, F1, mismatch, continuity and Top-1, and returns only those numbers. Reference arcs never leave the server, and tests check this.</li>
+<li><strong>Laptop 2</strong> runs the React and Leaflet evaluator (<code>frontend/</code>). It lists the trips, sends the chosen trip, model and decoder, and draws the GPS trace and the reconstructed route. It shows the server's evaluation, the model comparison and a link to the Folium map. The Vite proxy forwards <code>/api/*</code> to Laptop 1, so no CORS configuration is needed.</li>
+<li><strong>The API contract</strong> is in <code>docs/BACKEND_API.md</code>.</li>
+</ul>
+<p>Tests cover validation, geometry, candidates, the HMM decoder and network distances, and the API end to end on a synthetic trip, with no dataset needed. That end-to-end test checks the connected route, the absence of labels in responses, rejection of bad trip IDs, models and decoders, the map endpoint, and refusal of a missing or tampered bundle. All 20 tests pass.</p>
+<p>End-to-end check through the real backend and the UI proxy, on student-test trip 77 (3,911 readings):</p>
+<table>
+<thead>
+<tr>
+<th>Model + HMM</th>
+<th style="text-align: right;">Route arcs</th>
+<th style="text-align: right;">Chain breaks</th>
+<th style="text-align: right;">Top-1</th>
+<th style="text-align: right;">Route F1</th>
+<th style="text-align: right;">Mismatch</th>
+<th style="text-align: right;">Continuity</th>
+<th style="text-align: right;">Response time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stacking ensemble</td>
+<td style="text-align: right;">457</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">83.8 %</td>
+<td style="text-align: right;">0.983</td>
+<td style="text-align: right;">0.034</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">19.6 s</td>
+</tr>
+<tr>
+<td>Hist. Gradient Boosting (tuned)</td>
+<td style="text-align: right;">463</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">83.8 %</td>
+<td style="text-align: right;">0.983</td>
+<td style="text-align: right;">0.034</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">4.9 s</td>
+</tr>
+</tbody>
+</table>
+<p>These match the offline evaluation in section 7. Response times were measured while another job was using the CPU. Most of the stacking time is KNN scoring.</p>
+<h2 id="11-limitations">11. Limitations</h2>
+<ul>
+<li><strong>Labels are derived.</strong> Reading-level labels come from aligning the GPS track to the reference route, not from surveyed ground truth. Readings more than 50 m from their aligned arc are excluded from training and Top-1: 11.2 % of training readings and 0.1 % of student-test readings.</li>
+<li><strong>Some settings were never tuned.</strong> The 50 m candidate radius, the 10-candidate cap, the 60 s gap threshold and the 2 km fill limit were set from the data statistics.</li>
+<li><strong>The student test is small.</strong> Its 10 trips make it a noisy estimate: per-trip Top-1 ranges from 84 % to 100 %.</li>
+<li><strong>The ensemble is slow to serve.</strong> It carries the KNN, which stores 240,000 training rows and dominates response time.</li>
+</ul>
+<h2 id="12-reproduce">12. Reproduce</h2>
+<p>All commands run from the repository root with the pinned environment (<code>requirements.txt</code>: scikit-learn 1.4.2, NumPy 1.26.4). Set the dataset folder first.</p>
+<pre><code class="language-bash">export PATHSNAP_DATA_ROOT=&quot;/path/to/Student folder&quot;      # contains train/ and student_test/
+python scripts/knn/knn_optuna.py 40 &amp;&amp; python scripts/knn/train_knn_tuned.py   # KNN study (optional, results committed)
+python scripts/hgb/hgb_optuna.py 40                      # boosting study, about 1 hour of compute
+python scripts/ensemble/compare_all_models.py            # all models + ensembles, about 25 min
+python scripts/ensemble/plot_ensemble.py
+python scripts/hmm/run_hmm.py 25                         # HMM tuning + evaluation, about 5 min
+python scripts/export_model.py                           # writes models/pathsnap_v1/
+python scripts/make_maps.py --screenshots 00000077 00000056 00000009
+python scripts/build_report_pdf.py                       # this report as PDF
+python -m pytest -q
+</code></pre>
+<p>Then start the system:</p>
+<pre><code class="language-bash">PATHSNAP_EVALUATOR_ROOT=&quot;/path/to/evaluator/trips&quot; scripts/run_backend.sh     # Laptop 1
+cd frontend &amp;&amp; npm install &amp;&amp; npm run dev                                     # Laptop 2, see frontend/README.md
+</code></pre>
+<h2 id="references">References</h2>
+<ul>
+<li>P. Newson and J. Krumm, "Hidden Markov map matching through noise and sparseness," ACM SIGSPATIAL GIS, 2009.</li>
+<li>T. Akiba et al., "Optuna: A next-generation hyperparameter optimization framework," KDD, 2019.</li>
+<li>F. Pedregosa et al., "Scikit-learn: Machine learning in Python," JMLR 12, 2011.</li>
+</ul></body></html>

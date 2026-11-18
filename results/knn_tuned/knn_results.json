@@ -1,0 +1,174 @@
+{
+  "model": "KNN (Optuna-tuned)",
+  "family": "Instance-based",
+  "config": {
+    "n_neighbors": 31,
+    "weights": "distance",
+    "metric": "minkowski",
+    "p": 2,
+    "algorithm": "auto"
+  },
+  "feature_weights": {
+    "dist": 0.34224753673027497,
+    "dist_rank": 0.34224753673027497,
+    "dist_minus_min": 0.34224753673027497,
+    "win_dist": 0.34224753673027497,
+    "cos_heading": 1.1902407287269776,
+    "heading_ok": 1.1902407287269776,
+    "speed": 0.1550997180250869,
+    "dt_prev": 0.1550997180250869,
+    "arc_len": 0.1550997180250869,
+    "proj_t": 0.1550997180250869,
+    "n_cand": 0.1550997180250869,
+    "junction_deg": 0.1550997180250869,
+    "has_reverse": 0.1550997180250869,
+    "cont_prev": 1.0338966196463366,
+    "cont_next": 1.0338966196463366
+  },
+  "threshold": 0.425,
+  "subsample_every": 5,
+  "scaler": "StandardScaler + feature-group weights",
+  "seed": 42,
+  "cv_protocol": "5-fold GroupKFold by trip on 80 training trips; validation every 3rd observation",
+  "cv_folds": [
+    {
+      "fold": 0,
+      "macro_f1": 0.9268,
+      "top1_accuracy": 0.8802,
+      "log_loss": 0.1148,
+      "inference_time_s": 42.0
+    },
+    {
+      "fold": 1,
+      "macro_f1": 0.9429,
+      "top1_accuracy": 0.9054,
+      "log_loss": 0.1087,
+      "inference_time_s": 36.0
+    },
+    {
+      "fold": 2,
+      "macro_f1": 0.8843,
+      "top1_accuracy": 0.8116,
+      "log_loss": 0.1952,
+      "inference_time_s": 37.0
+    },
+    {
+      "fold": 3,
+      "macro_f1": 0.8589,
+      "top1_accuracy": 0.7598,
+      "log_loss": 0.2344,
+      "inference_time_s": 47.0
+    },
+    {
+      "fold": 4,
+      "macro_f1": 0.9121,
+      "top1_accuracy": 0.8689,
+      "log_loss": 0.1334,
+      "inference_time_s": 34.0
+    }
+  ],
+  "cv_summary": {
+    "macro_f1": {
+      "mean": 0.9049999999999999,
+      "std": 0.030052487417849445
+    },
+    "top1_accuracy": {
+      "mean": 0.84518,
+      "std": 0.05259819008292965
+    },
+    "log_loss": {
+      "mean": 0.1573,
+      "std": 0.04923462196462973
+    },
+    "inference_time_s": {
+      "mean": 39.2,
+      "std": 4.707440918375928
+    }
+  },
+  "student_test": {
+    "accuracy": 0.9567606597248612,
+    "precision": 0.8544561255216863,
+    "recall": 0.84645174795897,
+    "macro_f1": 0.9125811137896729,
+    "log_loss": 0.1304807543918258,
+    "top1_accuracy": 0.8570532587675743,
+    "candidate_miss_rate": 0.0013066429728740918,
+    "route_continuity": 0.8080995727289615,
+    "inference_time_s": 68.84669354800008,
+    "n_rows": 131570,
+    "confusion_matrix": [
+      [
+        109707,
+        2755
+      ],
+      [
+        2934,
+        16174
+      ]
+    ],
+    "fit_time_s": 0.37554006699997444,
+    "n_train_rows": 240350
+  },
+  "student_test_per_trip": [
+    {
+      "trip": "00000000",
+      "top1_accuracy": 0.9396723931282461,
+      "macro_f1": 0.9610198968680628,
+      "route_continuity": 0.7644787644787645
+    },
+    {
+      "trip": "00000007",
+      "top1_accuracy": 0.9638109305760709,
+      "macro_f1": 0.9699729903973946,
+      "route_continuity": 0.9893617021276596
+    },
+    {
+      "trip": "00000009",
+      "top1_accuracy": 0.8503336510962822,
+      "macro_f1": 0.9131288007106562,
+      "route_continuity": 0.7309417040358744
+    },
+    {
+      "trip": "00000040",
+      "top1_accuracy": 0.9158597662771285,
+      "macro_f1": 0.9445539595262504,
+      "route_continuity": 0.8611632270168855
+    },
+    {
+      "trip": "00000052",
+      "top1_accuracy": 0.950381679389313,
+      "macro_f1": 0.9566602212636751,
+      "route_continuity": 0.8023255813953488
+    },
+    {
+      "trip": "00000056",
+      "top1_accuracy": 0.8870516408038667,
+      "macro_f1": 0.9254559254687373,
+      "route_continuity": 0.7582804792107117
+    },
+    {
+      "trip": "00000065",
+      "top1_accuracy": 0.8346354166666666,
+      "macro_f1": 0.892204018259779,
+      "route_continuity": 0.8203883495145631
+    },
+    {
+      "trip": "00000076",
+      "top1_accuracy": 0.8485868102288021,
+      "macro_f1": 0.9169561845718792,
+      "route_continuity": 0.7209302325581395
+    },
+    {
+      "trip": "00000077",
+      "top1_accuracy": 0.6975198159038609,
+      "macro_f1": 0.8267917925882287,
+      "route_continuity": 0.8861352980576022
+    },
+    {
+      "trip": "00000091",
+      "top1_accuracy": 0.8466819221967964,
+      "macro_f1": 0.9018870574378529,
+      "route_continuity": 0.725
+    }
+  ]
+}

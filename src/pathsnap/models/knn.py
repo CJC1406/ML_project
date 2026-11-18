@@ -19,7 +19,7 @@ import numpy as np
 from sklearn.model_selection import GroupKFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score,
                              log_loss, confusion_matrix)
 import joblib
@@ -29,6 +29,16 @@ from pathsnap.features.candidate_features import FEATURES, load_cache
 SEED = 42
 SUBSAMPLE = 10
 CONFIG = dict(n_neighbors=25, weights="distance", metric="minkowski", p=2, algorithm="auto")
+# Optional per-feature multipliers applied AFTER standardisation (feature-weighted distance).
+# None = plain KNN (all features count equally). Set by scripts/knn/knn_optuna.py for the tuned model.
+FEATURE_WEIGHTS = None
+MODEL_NAME = "KNN"
+THRESHOLD = 0.5     # row-level decision threshold for P(true arc); Top-1 does not depend on it
+
+
+def scale_cols(X, w):
+    """Multiply standardised columns by weights w (module-level so the pipeline can be pickled)."""
+    return X * w
 
 
 def stack(trips, subsample=1):
@@ -85,7 +95,7 @@ def evaluate(model, trips, arc_tables=None, obs_every=1, probs=None):
                 ok = (at[seq[:-1]] == af[seq[1:]])
                 cont_ok += ok.sum(); cont_n += len(ok)
     infer_s = time.perf_counter() - t0
-    y = np.concatenate(y_all); p = np.concatenate(p_all); yhat = (p >= 0.5).astype(int)
+    y = np.concatenate(y_all); p = np.concatenate(p_all); yhat = (p >= THRESHOLD).astype(int)
     return dict(
         accuracy=accuracy_score(y, yhat), precision=precision_score(y, yhat, zero_division=0),
         recall=recall_score(y, yhat, zero_division=0), macro_f1=f1_score(y, yhat, average="macro"),
@@ -103,7 +113,11 @@ def arc_table(root, split, tid):
 
 
 def make_model():
-    return make_pipeline(StandardScaler(), KNeighborsClassifier(n_jobs=-1, **CONFIG))
+    steps = [StandardScaler()]
+    if FEATURE_WEIGHTS is not None:
+        steps.append(FunctionTransformer(scale_cols, kw_args=dict(w=np.asarray(FEATURE_WEIGHTS, float))))
+    steps.append(KNeighborsClassifier(n_jobs=-1, **CONFIG))
+    return make_pipeline(*steps)
 
 
 def main(root, cache_dir, out_dir):
@@ -148,7 +162,9 @@ def main(root, cache_dir, out_dir):
     cv_summary = {k: dict(mean=float(np.mean([f[k] for f in folds])),
                           std=float(np.std([f[k] for f in folds])))
                   for k in keys if folds[0][k] is not None}
-    results = dict(model="KNN", family="Instance-based", config=CONFIG, subsample_every=SUBSAMPLE,
+    results = dict(model=MODEL_NAME, family="Instance-based", config=CONFIG, threshold=THRESHOLD,
+                   feature_weights=(None if FEATURE_WEIGHTS is None else
+                                    dict(zip(FEATURES, map(float, FEATURE_WEIGHTS)))), subsample_every=SUBSAMPLE,
                    scaler="StandardScaler", features=FEATURES, seed=SEED,
                    cv_protocol="5-fold GroupKFold by trip on 80 training trips; validation scored on every 3rd observation (all candidates)",
                    cv_folds=folds, cv_summary=cv_summary, student_test=test_res,

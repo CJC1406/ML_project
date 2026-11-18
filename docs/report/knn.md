@@ -68,3 +68,22 @@ Sequence level, KNN alone (Top-1 arc per point, no HMM): route precision 0.848, 
 - **Large k starts to underfit:** k = 101 drops validation F1 to 0.895 (the boundary smooths over), even though log loss improves slightly to 0.148.
 - Note: with distance weighting the training F1 is always 1.000, because each training row is its own neighbour at distance 0. The fairer train-vs-validation comparison is uniform k = 25: train 0.909 vs validation 0.900, a gap of less than 0.01.
 - Fold spread (0.88–0.94) comes from trip difficulty, not from model variance; for example, fold 2 contains trips with noisy ground truth.
+
+## Hyperparameter optimisation (Optuna)
+Script: `scripts/knn/knn_optuna.py` (search) and `scripts/knn/train_knn_tuned.py` (final retrain). Results: `results/knn_tuned/`.
+
+- **Method:** TPE (Bayesian) sampler, seed 42, 40 trials, MedianPruner (18 clearly worse trials were stopped after 1–2 folds). Objective: mean validation macro F1 over the same 5-fold GroupKFold by trip. The untuned model was trial 0, so both use an identical protocol. Student-test trips were never used during tuning.
+- **Search space:** k 5–200 (log), weights uniform/distance, p 1/2, plus four feature-group multipliers applied after scaling (0.1–5, log): distance features, heading features, continuity features, context features. This is a feature-weighted distance, i.e. soft feature selection.
+- **Best trial:** k = 31, distance weights, Euclidean. Group weights: distance 0.34, heading 1.19, continuity 1.03, context 0.16.
+  - In words: the model learned to nearly ignore the context features (speed, dt, arc length, junction degree, …) and to rely mostly on heading and continuity.
+  - Parameter importance: context weight 0.36, heading weight 0.22, k 0.20.
+- **Two follow-up checks, both chosen with training folds only:**
+  - Training on every 5th observation instead of every 10th: +0.0015 F1. Every 3rd gave no further gain.
+  - A decision threshold of 0.425 instead of 0.5, chosen by nested CV: +0.0015 F1.
+
+| | CV Macro F1 | Student-test Macro F1 | Top-1 | Log loss | Continuity | Inference |
+|---|---|---|---|---|---|---|
+| Baseline (k=25) | 0.901 ± 0.030 | 0.910 | 0.853 | 0.139 | 0.807 | 83.8 s |
+| **Tuned** | **0.905 ± 0.030** | **0.913** | **0.857** | **0.130** | **0.808** | **68.8 s** |
+
+**Interpretation:** tuning improved every metric, and inference got faster because down-weighted features shrink the effective search space. The gains are modest, though: about 0.4 F1 points, inside one fold standard deviation. The k=25 baseline was already close to what KNN can do with these features. The remaining errors are at the route level (jumps between parallel or reverse arcs), so the HMM, not further KNN tuning, is the next lever.

@@ -34,13 +34,14 @@ FEATURES = [
 
 
 # ----------------------------------------------------------------------------- loading
-def load_trip(trip_dir: str):
+def load_trip(trip_dir: str, with_route: bool = True):
+    """Load one trip. with_route=False never opens the .route file (prediction-time use)."""
     tid = os.path.basename(os.path.normpath(trip_dir))
     nodes = np.loadtxt(os.path.join(trip_dir, f"{tid}.nodes"), ndmin=2)
     arcs = np.loadtxt(os.path.join(trip_dir, f"{tid}.arcs"), dtype=np.int64, ndmin=2)
     track = np.loadtxt(os.path.join(trip_dir, f"{tid}.track"), ndmin=2)
     rp = os.path.join(trip_dir, f"{tid}.route")
-    route = np.loadtxt(rp, dtype=np.int64, ndmin=1) if os.path.exists(rp) else None
+    route = np.loadtxt(rp, dtype=np.int64, ndmin=1) if with_route and os.path.exists(rp) else None
     return tid, nodes, arcs, track, route
 
 
@@ -97,8 +98,10 @@ def align_route(T, A, B, route):
 
 
 # ----------------------------------------------------------------------------- features
-def build_trip(trip_dir: str, with_labels: bool = True):
-    tid, nodes, arcs, track, route = load_trip(trip_dir)
+def build_trip(trip_dir: str, with_labels: bool = True, loaded=None):
+    """Features for every (observation, candidate) row. with_labels=False never reads the .route file.
+    `loaded` lets a caller pass an already-loaded (tid, nodes, arcs, track, route) tuple."""
+    tid, nodes, arcs, track, route = loaded or load_trip(trip_dir, with_route=with_labels)
     lon0, lat0 = track[:, 0].mean(), track[:, 1].mean()
     P = project(nodes[:, 0], nodes[:, 1], lon0, lat0)
     T = project(track[:, 0], track[:, 1], lon0, lat0)

@@ -1,0 +1,86 @@
+trial   0 F1=0.8995 top1=0.8399            best=0.8995  {'n_neighbors': 25, 'weights': 'distance', 'p': 2, 'w_dist': 1.0, 'w_head': 1.0, 'w_cont': 1.0, 'w_ctx': 1.0}  [0.6 min]
+trial   1 F1=0.8543 top1=0.7760            best=0.8995  {'n_neighbors': 19, 'weights': 'uniform', 'p': 1, 'w_dist': 0.18408992080552522, 'w_head': 0.1255111517297383, 'w_cont': 2.962151658830348, 'w_ctx': 1.0502105436744276}  [0.9 min]
+trial   2 F1=0.8840 top1=0.8233            best=0.8995  {'n_neighbors': 66, 'weights': 'distance', 'p': 1, 'w_dist': 0.20366442026830908, 'w_head': 0.20492680115417347, 'w_cont': 0.32877474139911184, 'w_ctx': 0.7790143126276238}  [1.5 min]
+trial   3 F1=0.9004 top1=0.8416            best=0.9004  {'n_neighbors': 23, 'weights': 'distance', 'p': 2, 'w_dist': 0.41921593504109744, 'w_head': 0.5954553793888989, 'w_cont': 2.157696745589682, 'w_ctx': 0.21839352923182975}  [1.8 min]
+trial   4 F1=0.8769 top1=0.8173            best=0.9004  {'n_neighbors': 32, 'weights': 'uniform', 'p': 1, 'w_dist': 0.12897950480855533, 'w_head': 4.09381360859878, 'w_cont': 4.370990468130501, 'w_ctx': 2.36288641842364}  [2.3 min]
+trial   5 F1=0.8908 top1=0.8188            best=0.9004  {'n_neighbors': 14, 'weights': 'distance', 'p': 1, 'w_dist': 0.6938901412739396, 'w_head': 0.11439974749291269, 'w_cont': 3.5067764992972172, 'w_ctx': 0.27520696850790527}  [2.6 min]
+trial   6 F1=0.8985 top1=0.8315            best=0.9004  {'n_neighbors': 56, 'weights': 'distance', 'p': 1, 'w_dist': 4.439102767051396, 'w_head': 2.074566765675251, 'w_cont': 3.946212980759093, 'w_ctx': 3.3134836155089475}  [3.6 min]
+trial   7 F1=0.8826 top1=0.8273            best=0.9004  {'n_neighbors': 44, 'weights': 'uniform', 'p': 1, 'w_dist': 0.35704789209099796, 'w_head': 0.4574578205475401, 'w_cont': 0.28907721743726744, 'w_ctx': 2.558586885593425}  [3.9 min]
+trial   8 F1=0.9199 top1=0.0000            best=0.9004  {'n_neighbors': 17, 'weights': 'distance', 'p': 2, 'w_dist': 0.13386261584543913, 'w_head': 4.749974771378394, 'w_cont': 2.0512599422151356, 'w_ctx': 0.21757649801197557}  [4.0 min]
+trial   9 F1=0.8521 top1=0.0000            best=0.9004  {'n_neighbors': 5, 'weights': 'uniform', 'p': 2, 'w_dist': 0.13359790328445564, 'w_head': 0.4064644058668375, 'w_cont': 0.15734685129393672, 'w_ctx': 2.9267581150621282}  [4.0 min]
+trial  10 F1=0.8968 top1=0.8240            best=0.9004  {'n_neighbors': 34, 'weights': 'distance', 'p': 2, 'w_dist': 2.216533186051094, 'w_head': 0.27110955262404896, 'w_cont': 0.25251449871213955, 'w_ctx': 0.24041308309189705}  [4.2 min]
+trial  11 F1=0.8983 top1=0.8423            best=0.9004  {'n_neighbors': 36, 'weights': 'distance', 'p': 2, 'w_dist': 1.2749896448479385, 'w_head': 1.4648319416035778, 'w_cont': 1.0227549683568127, 'w_ctx': 1.7819018008193566}  [4.7 min]
+trial  12 F1=0.9002 top1=0.8367            best=0.9004  {'n_neighbors': 14, 'weights': 'distance', 'p': 2, 'w_dist': 0.4063018382693673, 'w_head': 0.228551630618293, 'w_cont': 1.5484932322506384, 'w_ctx': 0.11392017104406708}  [5.0 min]
+trial  13 F1=0.8988 top1=0.8370            best=0.9004  {'n_neighbors': 10, 'weights': 'distance', 'p': 2, 'w_dist': 0.2173248379216016, 'w_head': 0.38308863621273137, 'w_cont': 2.7645165672359906, 'w_ctx': 0.10901095005951282}  [5.3 min]
+trial  14 F1=0.8995 top1=0.8397            best=0.9004  {'n_neighbors': 14, 'weights': 'distance', 'p': 2, 'w_dist': 0.2614755379559053, 'w_head': 0.5022010507913173, 'w_cont': 0.7100197229890346, 'w_ctx': 0.14419866345872479}  [5.6 min]
+trial  15 F1=0.8997 top1=0.8348            best=0.9004  {'n_neighbors': 17, 'weights': 'distance', 'p': 2, 'w_dist': 0.9938820437104887, 'w_head': 0.4111647853133766, 'w_cont': 1.1482233704062594, 'w_ctx': 0.16200578334206517}  [5.9 min]
+trial  16 F1=0.9314 top1=0.0000            best=0.9004  {'n_neighbors': 30, 'weights': 'distance', 'p': 2, 'w_dist': 0.470512795947787, 'w_head': 0.1807528261509638, 'w_cont': 1.6742636047923078, 'w_ctx': 0.22788396946516393}  [6.0 min]
+trial  17 F1=0.9290 top1=0.0000            best=0.9004  {'n_neighbors': 7, 'weights': 'distance', 'p': 2, 'w_dist': 0.5326327651863013, 'w_head': 0.2011790358719611, 'w_cont': 0.6627917051011931, 'w_ctx': 0.21903350301963007}  [6.1 min]
+trial  18 F1=0.9313 top1=0.0000            best=0.9004  {'n_neighbors': 69, 'weights': 'distance', 'p': 2, 'w_dist': 0.632571617928015, 'w_head': 0.8534437618244599, 'w_cont': 4.126907651999443, 'w_ctx': 0.2320299874476973}  [6.3 min]
+trial  19 F1=0.9311 top1=0.0000            best=0.9004  {'n_neighbors': 10, 'weights': 'distance', 'p': 2, 'w_dist': 0.48785070245398293, 'w_head': 0.5726738237595654, 'w_cont': 4.393324758567434, 'w_ctx': 0.3949449754390372}  [6.4 min]
+trial  20 F1=0.9273 top1=0.0000            best=0.9004  {'n_neighbors': 5, 'weights': 'distance', 'p': 2, 'w_dist': 0.4085161502962075, 'w_head': 0.738987970187927, 'w_cont': 1.705473260663133, 'w_ctx': 0.26590753813498447}  [6.6 min]
+trial  21 F1=0.9304 top1=0.0000            best=0.9004  {'n_neighbors': 20, 'weights': 'distance', 'p': 2, 'w_dist': 1.27462837542974, 'w_head': 0.22732719278384342, 'w_cont': 0.7171406357863915, 'w_ctx': 0.10605704657036477}  [6.6 min]
+trial  22 F1=0.8999 top1=0.8391            best=0.9004  {'n_neighbors': 21, 'weights': 'distance', 'p': 2, 'w_dist': 1.2606493260892682, 'w_head': 1.034351530817851, 'w_cont': 1.022048666397973, 'w_ctx': 0.15566009718932136}  [6.8 min]
+trial  23 F1=0.9290 top1=0.0000            best=0.9004  {'n_neighbors': 12, 'weights': 'distance', 'p': 2, 'w_dist': 4.069476673079752, 'w_head': 1.3441785882604365, 'w_cont': 0.6467299562964017, 'w_ctx': 0.18812511997500345}  [6.9 min]
+trial  24 F1=0.9004 top1=0.8406            best=0.9004  {'n_neighbors': 21, 'weights': 'distance', 'p': 2, 'w_dist': 0.8435313894963182, 'w_head': 0.8970832543047852, 'w_cont': 1.1458498063028013, 'w_ctx': 0.20697434719529056}  [7.2 min]
+trial  25 F1=0.9316 top1=0.0000            best=0.9004  {'n_neighbors': 19, 'weights': 'distance', 'p': 2, 'w_dist': 0.3737966893734455, 'w_head': 1.0017251331978518, 'w_cont': 1.2700054500221962, 'w_ctx': 0.3573568618405139}  [7.4 min]
+trial  26 F1=0.9311 top1=0.0000            best=0.9004  {'n_neighbors': 9, 'weights': 'distance', 'p': 2, 'w_dist': 0.934210736895944, 'w_head': 0.18088091558189573, 'w_cont': 2.949876069705339, 'w_ctx': 0.12907667040867005}  [7.4 min]
+trial  27 F1=0.9313 top1=0.0000            best=0.9004  {'n_neighbors': 19, 'weights': 'distance', 'p': 2, 'w_dist': 0.5114520491364275, 'w_head': 0.45320257428935845, 'w_cont': 1.668581119685121, 'w_ctx': 0.4715463433768067}  [7.6 min]
+trial  28 F1=0.8997 top1=0.8406            best=0.9004  {'n_neighbors': 28, 'weights': 'distance', 'p': 2, 'w_dist': 0.23772655748973284, 'w_head': 0.28170647618082456, 'w_cont': 3.2658841256080064, 'w_ctx': 0.1522478831360928}  [7.9 min]
+trial  29 F1=0.9283 top1=0.0000            best=0.9004  {'n_neighbors': 8, 'weights': 'distance', 'p': 2, 'w_dist': 0.5741747724864763, 'w_head': 0.27624258078842695, 'w_cont': 1.228747100374344, 'w_ctx': 0.3970976130950894}  [8.0 min]
+trial  30 F1=0.8984 top1=0.8348            best=0.9004  {'n_neighbors': 12, 'weights': 'distance', 'p': 2, 'w_dist': 0.3829712865792794, 'w_head': 0.23389937737629102, 'w_cont': 1.245128084540213, 'w_ctx': 0.20001174183642612}  [8.4 min]
+trial  31 F1=0.9005 top1=0.8400            best=0.9005  {'n_neighbors': 28, 'weights': 'distance', 'p': 2, 'w_dist': 0.8615245565961329, 'w_head': 1.2386458868267602, 'w_cont': 1.6691081893686013, 'w_ctx': 0.19951342217303686}  [8.7 min]
+trial  32 F1=0.9006 top1=0.8418            best=0.9006  {'n_neighbors': 31, 'weights': 'distance', 'p': 2, 'w_dist': 0.34224753673027497, 'w_head': 1.1902407287269776, 'w_cont': 1.0338966196463366, 'w_ctx': 0.1550997180250869}  [9.0 min]
+trial  33 F1=0.9004 top1=0.8385            best=0.9006  {'n_neighbors': 28, 'weights': 'distance', 'p': 2, 'w_dist': 0.7421502563658424, 'w_head': 0.7079687156071744, 'w_cont': 1.7988012510761549, 'w_ctx': 0.13544553805965787}  [9.3 min]
+trial  34 F1=0.9000 top1=0.8380            best=0.9006  {'n_neighbors': 25, 'weights': 'distance', 'p': 2, 'w_dist': 1.6135789658820918, 'w_head': 1.1183670951791465, 'w_cont': 2.1559135010670616, 'w_ctx': 0.21305349840486157}  [9.6 min]
+trial  35 F1=0.9310 top1=0.0000            best=0.9006  {'n_neighbors': 59, 'weights': 'distance', 'p': 2, 'w_dist': 1.0746378185836065, 'w_head': 0.7790415469858216, 'w_cont': 1.7285948141438363, 'w_ctx': 0.20790466898719323}  [9.7 min]
+trial  36 F1=0.9325 top1=0.0000            best=0.9006  {'n_neighbors': 30, 'weights': 'distance', 'p': 2, 'w_dist': 0.2569532553945566, 'w_head': 1.078108522673315, 'w_cont': 1.1532154571842743, 'w_ctx': 0.20295665287876116}  [9.9 min]
+trial  37 F1=0.9318 top1=0.0000            best=0.9006  {'n_neighbors': 12, 'weights': 'distance', 'p': 2, 'w_dist': 0.3329879209308519, 'w_head': 1.0743048261387538, 'w_cont': 1.836359351691653, 'w_ctx': 0.13502639118783422}  [10.0 min]
+trial  38 F1=0.9324 top1=0.0000            best=0.9006  {'n_neighbors': 42, 'weights': 'distance', 'p': 2, 'w_dist': 0.7937244859099529, 'w_head': 0.6113712939005629, 'w_cont': 1.7530754726858129, 'w_ctx': 0.3629658285122078}  [10.2 min]
+trial  39 F1=0.9300 top1=0.0000            best=0.9006  {'n_neighbors': 34, 'weights': 'distance', 'p': 2, 'w_dist': 0.20982741490903226, 'w_head': 2.7920926400126502, 'w_cont': 1.4124577308527009, 'w_ctx': 0.18177982140363783}  [10.3 min]
+{
+  "n_trials": 40,
+  "n_pruned": 18,
+  "protocol": "5-fold GroupKFold by trip, validation every 20th observation, TPE seed 42",
+  "baseline": {
+    "params": {
+      "n_neighbors": 25,
+      "weights": "distance",
+      "p": 2,
+      "w_dist": 1.0,
+      "w_head": 1.0,
+      "w_cont": 1.0,
+      "w_ctx": 1.0
+    },
+    "cv_macro_f1": 0.8994610182406874,
+    "f1_std": 0.030702203608375445,
+    "top1": 0.8398501414787235,
+    "log_loss": 0.17064156708771805
+  },
+  "best": {
+    "trial": 32,
+    "params": {
+      "n_neighbors": 31,
+      "weights": "distance",
+      "p": 2,
+      "w_dist": 0.34224753673027497,
+      "w_head": 1.1902407287269776,
+      "w_cont": 1.0338966196463366,
+      "w_ctx": 0.1550997180250869
+    },
+    "cv_macro_f1": 0.9005638511068079,
+    "f1_std": 0.03093172281470556,
+    "top1": 0.841791135482646,
+    "log_loss": 0.1613598810513716
+  },
+  "minutes": 10.25523930695,
+  "param_importance": {
+    "w_ctx": 0.3621738871879042,
+    "w_head": 0.22259888415449858,
+    "n_neighbors": 0.2030507344507794,
+    "w_cont": 0.11637953063889547,
+    "w_dist": 0.08670512890819795,
+    "p": 0.007866983357680352,
+    "weights": 0.0012248513020439837
+  }
+}

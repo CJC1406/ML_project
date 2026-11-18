@@ -1,0 +1,215 @@
+{
+  "bundle_version": 1,
+  "base_models": [
+    "logistic_regression",
+    "knn_tuned",
+    "decision_tree",
+    "hist_gradient_boosting"
+  ],
+  "ensembles": [
+    "soft_vote",
+    "stacking"
+  ],
+  "files": {
+    "base/logistic_regression.joblib": "7583d0c72759563ac8afea5edef6447e5c1cc308392e1d0de266b918c045313c",
+    "base/knn_tuned.joblib": "07fc9157122fd1d11d2ccaa3fed7bf24debe48cb444bb548a597a923f77a501f",
+    "base/decision_tree.joblib": "3595055590f7c1bb3a3f8d9e9569bfaa4124697dd9c2cc9628ae02e7359a53ee",
+    "base/hist_gradient_boosting.joblib": "6a879aee52af1892d825e185b8c61bc9e9971737f3b9e2d6389859dce764bfa0",
+    "stacking_meta.joblib": "1702182846c5981b8f7c8264d05221e80dfe2de4b5cdf76b609f4e7a37e2418c",
+    "hmm_config.json": "ab05fd54bfc29b1d1ffd2a05d57463a9776c0ca77aa689a2011fd777dedabf5b"
+  },
+  "created_utc": "2026-11-18T14:06:40+00:00",
+  "git_commit": "3e299ce104de072a41581f2fcdfe205bcdbdfa17",
+  "default_model": "stacking",
+  "model_labels": {
+    "logistic_regression": "Logistic Regression",
+    "knn_tuned": "KNN (Optuna-tuned)",
+    "decision_tree": "Decision Tree",
+    "hist_gradient_boosting": "Hist. Gradient Boosting (Optuna-tuned)",
+    "soft_vote": "Ensemble: soft vote",
+    "stacking": "Ensemble: stacking"
+  },
+  "environment": {
+    "python": "3.12.4",
+    "numpy": "1.26.4",
+    "scipy": "1.13.1",
+    "scikit_learn": "1.4.2"
+  },
+  "features": [
+    "dist",
+    "dist_rank",
+    "dist_minus_min",
+    "win_dist",
+    "cos_heading",
+    "heading_ok",
+    "speed",
+    "dt_prev",
+    "arc_len",
+    "proj_t",
+    "n_cand",
+    "junction_deg",
+    "has_reverse",
+    "cont_prev",
+    "cont_next"
+  ],
+  "candidates": {
+    "radius_m": 50.0,
+    "max_candidates": 10,
+    "densify_m": 10.0,
+    "smoothing_window": 3
+  },
+  "configs": {
+    "hist_gradient_boosting": {
+      "learning_rate": 0.018058225379893354,
+      "max_iter": 250,
+      "max_leaf_nodes": 106,
+      "min_samples_leaf": 159,
+      "l2_regularization": 0.000615199922151719,
+      "max_features": 0.41025147111294274,
+      "max_depth": 14
+    },
+    "knn_tuned": {
+      "n_neighbors": 31,
+      "weights": "distance",
+      "p": 2,
+      "w_dist": 0.34224753673027497,
+      "w_head": 1.1902407287269776,
+      "w_cont": 1.0338966196463366,
+      "w_ctx": 0.1550997180250869
+    },
+    "decision_tree": {
+      "max_depth": 12,
+      "min_samples_leaf": 30
+    },
+    "logistic_regression": {
+      "class_weight": "balanced",
+      "max_iter": 1000
+    },
+    "train_subsample_every": {
+      "logistic_regression": 1,
+      "knn_tuned": 5,
+      "decision_tree": 1,
+      "hist_gradient_boosting": 1
+    },
+    "stacking": {
+      "meta_learner": "LogisticRegression(C=1.0) on logit(base probabilities)",
+      "trained_on": "out-of-fold base probabilities, labelled validation rows",
+      "coefficients": {
+        "logistic_regression": -0.024630130674269633,
+        "knn_tuned": 0.02510865989283645,
+        "decision_tree": 0.05220579174954832,
+        "hist_gradient_boosting": 0.973178778144282
+      },
+      "intercept": 0.081293307471237
+    }
+  },
+  "training_data": {
+    "train_trips": 80,
+    "student_test_trips": 10,
+    "evaluator_trips_used": false
+  },
+  "hmm": {
+    "alpha": 0.11894742147441108,
+    "beta": 7.569367524707451,
+    "max_gap_s": 60.0,
+    "transition_limit": "2 * gps distance + 200 m",
+    "route_fill_limit_m": 2000.0,
+    "tuned_on": "80 training trips, out-of-fold stacking probabilities",
+    "objective": "observation Top-1 over labelled readings",
+    "n_trials": 25,
+    "tuning_minutes": 1.9271010267833237,
+    "probability_model": "stacking"
+  },
+  "metrics": [
+    {
+      "model": "logistic_regression",
+      "label": "Logistic Regression",
+      "accuracy": 0.8940487953180817,
+      "precision": 0.5859556915707538,
+      "recall": 0.9218651873560813,
+      "macro_f1": 0.8256722385162896,
+      "log_loss": 0.2354053039508878,
+      "top1_classifier_only": 0.8520880154706528,
+      "top1_hmm": 0.917942821303507,
+      "route_f1_hmm": 0.9862549864991641,
+      "route_mismatch_hmm": 0.02813099018129429,
+      "cv_top1_mean": 0.8476917123365292,
+      "protocol": "student-test trips (10), models refit on 80 training trips; row metrics at threshold 0.5"
+    },
+    {
+      "model": "knn_tuned",
+      "label": "KNN (Optuna-tuned)",
+      "accuracy": 0.957642319677738,
+      "precision": 0.8768305584943482,
+      "recall": 0.8241050868746075,
+      "macro_f1": 0.9124996516001797,
+      "log_loss": 0.13102060331685259,
+      "top1_classifier_only": 0.8567396644540846,
+      "top1_hmm": 0.9127685151309256,
+      "route_f1_hmm": 0.986486007170004,
+      "route_mismatch_hmm": 0.02758201557179037,
+      "cv_top1_mean": 0.8477733732296914,
+      "protocol": "student-test trips (10), models refit on 80 training trips; row metrics at threshold 0.5"
+    },
+    {
+      "model": "decision_tree",
+      "label": "Decision Tree",
+      "accuracy": 0.9593600364824808,
+      "precision": 0.8766628346198062,
+      "recall": 0.8380782918149466,
+      "macro_f1": 0.91662626786503,
+      "log_loss": 0.10289540802569992,
+      "top1_classifier_only": 0.8633774107562849,
+      "top1_hmm": 0.9202947786546803,
+      "route_f1_hmm": 0.987372509303575,
+      "route_mismatch_hmm": 0.025784887477156203,
+      "cv_top1_mean": 0.8559337497461131,
+      "protocol": "student-test trips (10), models refit on 80 training trips; row metrics at threshold 0.5"
+    },
+    {
+      "model": "hist_gradient_boosting",
+      "label": "Hist. Gradient Boosting (Optuna-tuned)",
+      "accuracy": 0.9619594132401004,
+      "precision": 0.8855174676070199,
+      "recall": 0.8476554322796734,
+      "macro_f1": 0.9220007328884862,
+      "log_loss": 0.09318234735979121,
+      "top1_classifier_only": 0.8720535200961689,
+      "top1_hmm": 0.9357654314535097,
+      "route_f1_hmm": 0.9874809929574256,
+      "route_mismatch_hmm": 0.025560217491052268,
+      "cv_top1_mean": 0.8624307911477367,
+      "protocol": "student-test trips (10), models refit on 80 training trips; row metrics at threshold 0.5"
+    },
+    {
+      "model": "soft_vote",
+      "label": "Ensemble: soft vote",
+      "accuracy": 0.9599224747282815,
+      "precision": 0.8582155248304075,
+      "recall": 0.8673330542181286,
+      "macro_f1": 0.9196427749997065,
+      "log_loss": 0.11454220350927302,
+      "top1_classifier_only": 0.8646317880102441,
+      "top1_hmm": 0.9245283018867925,
+      "route_f1_hmm": 0.9864554781505739,
+      "route_mismatch_hmm": 0.027716076094052595,
+      "cv_top1_mean": 0.8610443878416394,
+      "protocol": "student-test trips (10), models refit on 80 training trips; row metrics at threshold 0.5"
+    },
+    {
+      "model": "stacking",
+      "label": "Ensemble: stacking",
+      "accuracy": 0.9618150034202326,
+      "precision": 0.881638846737481,
+      "recall": 0.8513711534435838,
+      "macro_f1": 0.92198460180412,
+      "log_loss": 0.09212752517661091,
+      "top1_classifier_only": 0.8717921915015941,
+      "top1_hmm": 0.9364448857994042,
+      "route_f1_hmm": 0.9873551292826337,
+      "route_mismatch_hmm": 0.025816278800318927,
+      "cv_top1_mean": 0.8626765426880617,
+      "protocol": "student-test trips (10), models refit on 80 training trips; row metrics at threshold 0.5"
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "00000000": {
+    "classifier_only": {
+      "route_precision": 0.9142437520503863,
+      "route_recall": 1.0,
+      "route_f1": 0.9552009780061926,
+      "route_mismatch_fraction": 0.09380020126720813,
+      "route_continuity": 0.9896907216494846,
+      "observation_top1": 0.9484618457850579,
+      "labelled_observations": 2503,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 0.9916573833932966,
+      "route_recall": 1.0,
+      "route_f1": 0.9958112189996807,
+      "route_mismatch_fraction": 0.00841280138323193,
+      "route_continuity": 0.9911111111111112,
+      "observation_top1": 0.9800239712345186,
+      "labelled_observations": 2503,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000007": {
+    "classifier_only": {
+      "route_precision": 0.9619699148758514,
+      "route_recall": 0.993022570214311,
+      "route_f1": 0.977249625892863,
+      "route_mismatch_fraction": 0.04623513659279371,
+      "route_continuity": 1.0,
+      "observation_top1": 0.9460856720827179,
+      "labelled_observations": 1354,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 1.0,
+      "route_recall": 0.993022570214311,
+      "route_f1": 0.9964990713652888,
+      "route_mismatch_fraction": 0.006977429785689274,
+      "route_continuity": 1.0,
+      "observation_top1": 1.0,
+      "labelled_observations": 1354,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000009": {
+    "classifier_only": {
+      "route_precision": 0.7758412269395117,
+      "route_recall": 0.9954467730679698,
+      "route_f1": 0.8720305740983616,
+      "route_mismatch_fraction": 0.2921612059229886,
+      "route_continuity": 1.0,
+      "observation_top1": 0.8741658722592945,
+      "labelled_observations": 1049,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 0.9396422899255741,
+      "route_recall": 0.9896248017319805,
+      "route_f1": 0.9639860845474233,
+      "route_mismatch_fraction": 0.07394352368910176,
+      "route_continuity": 1.0,
+      "observation_top1": 0.894184938036225,
+      "labelled_observations": 1049,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000040": {
+    "classifier_only": {
+      "route_precision": 0.825052378041853,
+      "route_recall": 0.9993690537333257,
+      "route_f1": 0.9038830611870633,
+      "route_mismatch_fraction": 0.21254141893770742,
+      "route_continuity": 0.9950678175092479,
+      "observation_top1": 0.9202003338898164,
+      "labelled_observations": 2995,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 0.9984816165673879,
+      "route_recall": 1.0,
+      "route_f1": 0.9992402314737225,
+      "route_mismatch_fraction": 0.0015206924267989982,
+      "route_continuity": 1.0,
+      "observation_top1": 0.9729549248747913,
+      "labelled_observations": 2995,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000052": {
+    "classifier_only": {
+      "route_precision": 0.8927103953657233,
+      "route_recall": 0.9968677207204639,
+      "route_f1": 0.9419183779868693,
+      "route_mismatch_fraction": 0.12293993939416341,
+      "route_continuity": 0.9829545454545454,
+      "observation_top1": 0.9580152671755725,
+      "labelled_observations": 262,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 1.0,
+      "route_recall": 0.9968677207204639,
+      "route_f1": 0.9984314037194182,
+      "route_mismatch_fraction": 0.003132279279536021,
+      "route_continuity": 1.0,
+      "observation_top1": 1.0,
+      "labelled_observations": 262,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000056": {
+    "classifier_only": {
+      "route_precision": 0.833746350815302,
+      "route_recall": 0.9877049282331313,
+      "route_f1": 0.9042189479005721,
+      "route_mismatch_fraction": 0.2092489156738213,
+      "route_continuity": 0.9691132514114912,
+      "observation_top1": 0.9081658611040447,
+      "labelled_observations": 3931,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 0.9561924425786228,
+      "route_recall": 1.0000000000000002,
+      "route_f1": 0.9776057015312714,
+      "route_mismatch_fraction": 0.04581458236925471,
+      "route_continuity": 0.9993006993006993,
+      "observation_top1": 0.9610786059526838,
+      "labelled_observations": 3931,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000065": {
+    "classifier_only": {
+      "route_precision": 0.6151717616593056,
+      "route_recall": 1.0,
+      "route_f1": 0.7617416008156613,
+      "route_mismatch_fraction": 0.6255622613474573,
+      "route_continuity": 0.9977064220183486,
+      "observation_top1": 0.8515625,
+      "labelled_observations": 768,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 0.993923098019465,
+      "route_recall": 1.0,
+      "route_f1": 0.9969522886882793,
+      "route_mismatch_fraction": 0.006114056502604765,
+      "route_continuity": 1.0,
+      "observation_top1": 0.9127604166666666,
+      "labelled_observations": 768,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000076": {
+    "classifier_only": {
+      "route_precision": 0.5589142131601289,
+      "route_recall": 0.9903615702431919,
+      "route_f1": 0.7145624603523598,
+      "route_mismatch_fraction": 0.7912152839162414,
+      "route_continuity": 0.9980638915779284,
+      "observation_top1": 0.8909825033647375,
+      "labelled_observations": 1486,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 0.9450737296410213,
+      "route_recall": 0.9984177427415599,
+      "route_f1": 0.9710136558672688,
+      "route_mismatch_fraction": 0.05960880180100647,
+      "route_continuity": 1.0,
+      "observation_top1": 0.9535666218034994,
+      "labelled_observations": 1486,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000077": {
+    "classifier_only": {
+      "route_precision": 0.6231583205850477,
+      "route_recall": 1.0,
+      "route_f1": 0.767834305110099,
+      "route_mismatch_fraction": 0.6047286331042762,
+      "route_continuity": 1.0,
+      "observation_top1": 0.7113270263359754,
+      "labelled_observations": 3911,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 0.9669831049583418,
+      "route_recall": 1.0,
+      "route_f1": 0.983214449092913,
+      "route_mismatch_fraction": 0.034144231551057565,
+      "route_continuity": 1.0,
+      "observation_top1": 0.8378931219636921,
+      "labelled_observations": 3911,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  },
+  "00000091": {
+    "classifier_only": {
+      "route_precision": 0.6949095701165373,
+      "route_recall": 1.0,
+      "route_f1": 0.819996042701862,
+      "route_mismatch_fraction": 0.4390361609673881,
+      "route_continuity": 0.996186844613918,
+      "observation_top1": 0.8821510297482837,
+      "labelled_observations": 874,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    },
+    "hmm_viterbi": {
+      "route_precision": 0.9860645453758821,
+      "route_recall": 0.9955754776706062,
+      "route_f1": 0.990797187541072,
+      "route_mismatch_fraction": 0.01849438921490777,
+      "route_continuity": 1.0,
+      "observation_top1": 0.9416475972540046,
+      "labelled_observations": 874,
+      "protocol": "server-side comparison with the reference route; length-weighted route metrics; Top-1 against the monotone route alignment (derived labels)"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+fold 0: macroF1=0.9268 top1=0.8802 logloss=0.1148 (42s)
+fold 1: macroF1=0.9429 top1=0.9054 logloss=0.1087 (36s)
+fold 2: macroF1=0.8843 top1=0.8116 logloss=0.1952 (37s)
+fold 3: macroF1=0.8589 top1=0.7598 logloss=0.2344 (47s)
+fold 4: macroF1=0.9121 top1=0.8689 logloss=0.1334 (34s)
