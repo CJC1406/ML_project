@@ -1,0 +1,1 @@
+boosting settings: {'learning_rate': 0.018058225379893354, 'max_iter': 250, 'max_leaf_nodes': 106, 'min_samples_leaf': 159, 'l2_regularization': 0.000615199922151719, 'max_features': 0.41025147111294274, 'max_depth': 14}

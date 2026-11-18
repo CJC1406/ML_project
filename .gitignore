@@ -23,3 +23,4 @@ build/
 results/knn/knn_model.joblib
 
 results/knn_tuned/knn_model.joblib
+results/ensemble/*.joblib
