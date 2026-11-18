@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from shapely.geometry import Point
-from src.geo.distance import bearing_deg, heading_difference_deg, point_to_segment_m
-from src.geo.geometry import RoadGeometry, query_geometry
+from pathsnap.geo.distance import bearing_deg, heading_difference_deg, point_to_segment_m
+from pathsnap.geo.geometry import RoadGeometry, query_geometry
 
 
 @dataclass(frozen=True)

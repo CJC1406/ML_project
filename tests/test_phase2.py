@@ -1,7 +1,7 @@
 import pandas as pd
-from src.data.validator import parse_timestamps
-from src.geo.road_network import build_graph
-from src.geo.geometry import build_road_geometry
+from pathsnap.data.validator import parse_timestamps
+from pathsnap.geo.road_network import build_graph
+from pathsnap.geo.geometry import build_road_geometry
 from src.map_matching.candidate_generation import generate_candidates
 
 
@@ -13,7 +13,11 @@ def frames():
 
 
 def test_numeric_timestamps_are_seconds():
-    assert parse_timestamps(pd.Series([1700000000])).iloc[0].year == 2023
+    assert parse_timestamps(pd.Series([1700000000.25])).iloc[0] == 1700000000.25
+
+
+def test_elapsed_timestamp_edge_cases():
+    assert parse_timestamps(pd.Series([1.5, 2.5])).tolist() == [1.5, 2.5]
 
 
 def test_parallel_directed_arcs_and_ids_survive():

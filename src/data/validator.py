@@ -1,18 +1,20 @@
+from __future__ import annotations
 from dataclasses import dataclass, field
 import pandas as pd
 from .loader import TripData
 
 
 def parse_timestamps(values: pd.Series) -> pd.Series:
-    """Parse numeric timestamps as Unix seconds; textual values use pandas parsing."""
+    """Return elapsed seconds without converting numeric values to epoch datetimes."""
     numeric = pd.to_numeric(values, errors="coerce")
-    result = pd.Series(pd.NaT, index=values.index, dtype="datetime64[ns, UTC]")
+    result = pd.Series(float("nan"), index=values.index, dtype="float64")
     numeric_mask = numeric.notna()
     if numeric_mask.any():
-        result.loc[numeric_mask] = pd.to_datetime(numeric.loc[numeric_mask], unit="s", errors="coerce", utc=True)
+        result.loc[numeric_mask] = numeric.loc[numeric_mask].where(numeric.loc[numeric_mask].apply(lambda x: pd.notna(x) and pd.api.types.is_number(x) and float(x) == float(x) and abs(float(x)) != float("inf")))
     text_mask = ~numeric_mask
     if text_mask.any():
-        result.loc[text_mask] = pd.to_datetime(values.loc[text_mask], errors="coerce", utc=True)
+        parsed = pd.to_datetime(values.loc[text_mask], errors="coerce", utc=True)
+        result.loc[text_mask] = parsed.astype("int64", errors="ignore") / 1_000_000_000
     return result
 
 
@@ -49,7 +51,7 @@ def validate_trip(trip: TripData) -> ValidationReport:
             r.errors.append(f"{name} contains invalid coordinates")
     if not trip.track.empty:
         times = parse_timestamps(trip.track.timestamp)
-        if times.isna().any(): r.errors.append("track contains invalid timestamps")
+        if times.isna().any() or (~times.apply(pd.api.types.is_number)).any(): r.errors.append("track contains invalid or non-finite timestamps")
         if not times.is_monotonic_increasing: r.errors.append("track timestamps are not ordered")
         if trip.track.duplicated().any(): r.warnings.append("track contains duplicate observations")
     node_ids = integer_ids(trip.nodes.node_id, "node_id", r)

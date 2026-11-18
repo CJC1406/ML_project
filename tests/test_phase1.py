@@ -1,9 +1,9 @@
 import math
 import pandas as pd
-from src.data.loader import TripData
-from src.data.validator import validate_trip
-from src.geo.distance import bearing_deg, haversine_m, heading_difference_deg
-from src.geo.road_network import build_graph, graph_statistics
+from pathsnap.data.loader import TripData
+from pathsnap.data.validator import validate_trip
+from pathsnap.geo.distance import bearing_deg, haversine_m, heading_difference_deg
+from pathsnap.geo.road_network import build_graph, graph_statistics
 
 
 def trip():

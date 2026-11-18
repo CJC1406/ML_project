@@ -7,8 +7,8 @@ The API boundary will expose prediction objects rather than files containing gro
 ## Phase 2 geospatial path
 
 The loader accepts headered or whitespace/comma/semicolon/tab-separated files and
-normalises them into typed semantic columns. Numeric timestamps are Unix seconds;
-text timestamps are parsed as timestamps. Validation rejects malformed coordinates,
+normalises them into typed semantic columns. Numeric track timestamps are elapsed
+seconds, not Unix epoch values; text timestamps are parsed only when present. Validation rejects malformed coordinates,
 timestamps, references, and non-monotonic tracks.
 
 Road geometry maps each preserved arc ID to a directed `LineString`. A `MultiDiGraph`
