@@ -2,17 +2,19 @@
 
 PathSnap is a working, data-first map-matching system: noisy GPS observations are matched to a supplied road network and reconstructed as a connected route. The repository deliberately does not include fake trips, fake labels, or invented benchmark numbers.
 
-## Current milestone
+## Current status
 
-This first slice is runnable before the competition dataset arrives:
+The real training partition has now been inspected and preprocessed. Completed work:
 
 - strict loaders for `.track`, `.nodes`, `.arcs`, and `.route` inputs;
 - schema validation with actionable errors;
 - a dependency-free Viterbi decoder;
 - a small FastAPI service surface (optional dependency);
 - a browser frontend stub that calls the API;
-- tests for validation and route reconstruction.
+- tests for validation, geometry, candidates, and Viterbi decoding; currently 10 tests pass locally.
 - reusable EDA, road geometry, candidate generation, and Folium map utilities.
+
+Not started yet: route/GPS alignment, supervised-label generation, ML training, five-model comparison, Optuna, and the production evaluator workflow.
 
 Dataset-specific column assumptions remain isolated in `pathsnap/data/schema.py`. Put real trips under `data/raw/` only after inspecting their format. Ground-truth route files must stay on the backend/evaluation side and must never be sent to the frontend.
 
@@ -26,6 +28,20 @@ python3 -m venv .venv
 .venv/bin/python -c 'from pathlib import Path; from src.eda import explore_dataset; explore_dataset(Path("data/raw"), Path("data/processed/eda.json"))'
 .venv/bin/python scripts/preprocess_training.py
 ```
+
+Set the dataset path locally before running data commands:
+
+```bash
+export PATHSNAP_TRAIN_ROOT="/absolute/path/to/Student folder/train"
+```
+
+Run the test suite with:
+
+```bash
+.venv/bin/python -m pytest -q
+```
+
+Expected current result: `10 passed`.
 
 The API and React application are intentionally separate: Laptop 1 runs the Python service; Laptop 2 runs the evaluator UI. See `docs/architecture.md`.
 
@@ -46,12 +62,10 @@ per-trip CRS metadata, and `manifest.json`. It preserves elapsed timestamps, com
 time gaps, movement distance, valid GPS bearings, speeds, and large-gap flags. It does
 not join `.route` files to observations or create supervised labels.
 
-Phase 2 candidate generation uses a spatial index for coarse nearby-segment queries,
-then ranks candidates by metre-scale point-to-segment distance and optional heading
-difference. It is deterministic and preserves observations with no candidates by
-returning no rows for that observation. The current distance conversion is a local
-equirectangular approximation; a region-specific projected CRS must be selected after
-the real dataset is inspected.
+Candidate generation uses each trip's local projected CRS and a metric spatial index,
+then ranks candidates by exact projected point-to-segment distance and optional
+heading difference. It is deterministic and preserves observations with no candidates
+by returning no rows for that observation. The selected EPSG/CRS is recorded per trip.
 
 ## Final repository shape
 
