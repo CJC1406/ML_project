@@ -54,13 +54,13 @@ def validate_trip(trip: TripData) -> ValidationReport:
         if times.isna().any() or (~times.apply(pd.api.types.is_number)).any(): r.errors.append("track contains invalid or non-finite timestamps")
         if not times.is_monotonic_increasing: r.errors.append("track timestamps are not ordered")
         if trip.track.duplicated().any(): r.warnings.append("track contains duplicate observations")
-    node_ids = integer_ids(trip.nodes.node_id, "node_id", r)
+    node_ids = integer_ids(trip.nodes.node_id, "node_id", r) if "node_id" in trip.nodes else set(range(len(trip.nodes)))
     if not trip.arcs.empty:
         from_ids = integer_ids(trip.arcs.from_node_id, "from_node_id", r)
         to_ids = integer_ids(trip.arcs.to_node_id, "to_node_id", r)
         refs = from_ids | to_ids
         if not refs.issubset(node_ids): r.errors.append("arcs reference nodes outside the zero-based node table")
-    arc_ids = integer_ids(trip.arcs.arc_id, "arc_id", r)
+    arc_ids = integer_ids(trip.arcs.arc_id, "arc_id", r) if "arc_id" in trip.arcs else set(range(len(trip.arcs)))
     if not trip.route.empty:
         route_ids = integer_ids(trip.route.arc_id, "route.arc_id", r)
         if not route_ids.issubset(arc_ids): r.errors.append("route references arcs outside the zero-based arc table")
