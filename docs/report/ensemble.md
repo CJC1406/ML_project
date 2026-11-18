@@ -11,7 +11,7 @@ Every model reads the same 15 features from `pathsnap.features.candidate_feature
 | Logistic Regression | StandardScaler, balanced class weights | every reading |
 | KNN (Optuna-tuned) | k = 31, distance weights, Euclidean, feature-group multipliers from `results/knn_tuned/optuna_best.json` | every 5th reading |
 | Decision Tree | max depth 12, at least 30 rows per leaf | every reading |
-| Histogram Gradient Boosting | 150 iterations, learning rate 0.08, 31 leaves | every reading |
+| Histogram Gradient Boosting | Optuna-tuned (`docs/report/hgb_tuning.md`): 250 iterations, learning rate 0.018, 106 leaves, depth 14, 159 rows per leaf, 41 % of features per split | every reading |
 
 The KNN keeps the subsample its Optuna study selected, because it stores and scans its whole training set.
 
@@ -20,17 +20,19 @@ The KNN keeps the subsample its Optuna study selected, because it stores and sca
 - **Soft vote** averages the four probabilities with equal weight. It needs no fitting.
 - **Stacking** fits a logistic regression on the logits of the four probabilities. It is trained only on out-of-fold probabilities, so it never sees a probability that a base model gave its own training rows.
 
-The exported ensemble is the one with the higher mean cross-validation Top-1. Student-test results played no part in the choice. Stacking won, and it is saved as `results/ensemble/ensemble_model.joblib`. That file is about 65 MB because it contains the KNN training set, so it is git-ignored and must be rebuilt with the script.
+The exported ensemble is the one with the higher mean cross-validation Top-1. Student-test results played no part in the choice. Stacking won, and its fitted base models and meta-learner are exported to the model bundle (`models/pathsnap_v1/`, see `scripts/export_model.py`).
 
 The stacking meta-learner learned these weights on the logit scale:
 
-| Base model | Weight |
-| --- | ---: |
-| Histogram Gradient Boosting | 0.633 |
-| Decision Tree | 0.147 |
-| KNN (Optuna-tuned) | 0.052 |
-| Logistic Regression | 0.051 |
-| Intercept | -0.053 |
+| Base model | Weight with tuned boosting | Weight with untuned boosting (first run) |
+| --- | ---: | ---: |
+| Histogram Gradient Boosting | 0.973 | 0.633 |
+| Decision Tree | 0.052 | 0.147 |
+| KNN (Optuna-tuned) | 0.025 | 0.052 |
+| Logistic Regression | -0.025 | 0.051 |
+| Intercept | 0.081 | -0.053 |
+
+Once boosting was tuned, the meta-learner put almost all its weight on it. The other three models add almost nothing that the tuned booster does not already capture.
 
 ## Protocol
 
@@ -42,26 +44,26 @@ The stacking meta-learner learned these weights on the logit scale:
 
 ## Results
 
-| Model | CV Top-1 | Test Top-1 | Test macro F1 | Test log loss | Route F1 | Route mismatch | Continuity |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Logistic Regression | 84.77 ± 3.58 % | 85.21 % | 0.826 | 0.235 | 0.903 | 0.217 | 0.780 |
-| KNN (Optuna-tuned) | 84.78 ± 3.32 % | 85.67 % | 0.913 | 0.131 | 0.904 | 0.216 | 0.807 |
-| Decision Tree | 85.59 ± 4.09 % | 86.34 % | 0.917 | 0.103 | 0.918 | 0.180 | 0.801 |
-| Histogram Gradient Boosting | 86.04 ± 4.01 % | **87.07 %** | 0.921 | 0.096 | 0.915 | 0.187 | 0.822 |
-| Ensemble: soft vote | 86.09 ± 3.78 % | 86.53 % | 0.920 | 0.114 | 0.916 | 0.185 | 0.818 |
-| **Ensemble: stacking** | **86.15 ± 4.00 %** | 86.92 % | **0.921** | **0.094** | **0.921** | **0.174** | **0.825** |
+| Model | CV Top-1 | Test Top-1 | Test macro F1 | Test log loss | Route F1 | Route mismatch | Continuity | Fit | Test scoring |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Logistic Regression | 84.77 ± 3.58 % | 85.21 % | 0.826 | 0.235 | 0.903 | 0.217 | 0.780 | 3 s | 0.06 s |
+| KNN (Optuna-tuned) | 84.78 ± 3.32 % | 85.67 % | 0.912 | 0.131 | 0.904 | 0.216 | 0.807 | 0.5 s | 51 s |
+| Decision Tree | 85.59 ± 4.09 % | 86.34 % | 0.917 | 0.103 | 0.918 | 0.180 | 0.801 | 24 s | 0.03 s |
+| Hist. Gradient Boosting (tuned) | 86.24 ± 3.97 % | **87.21 %** | **0.922** | 0.093 | **0.923** | **0.170** | 0.828 | 26 s | 0.7 s |
+| Ensemble: soft vote | 86.10 ± 3.77 % | 86.46 % | 0.920 | 0.115 | 0.917 | 0.184 | 0.816 | 54 s | 52 s |
+| **Ensemble: stacking** | **86.27 ± 4.00 %** | 87.18 % | **0.922** | **0.092** | 0.922 | **0.170** | **0.829** | 54 s | 52 s |
 
-Route metrics are length-weighted means over the 10 student-test trips. They take the classifier's best arc per reading, without the HMM, as defined in `scripts/knn/knn_sequence_metrics.py`. The candidate miss rate is 0.13 % for every model, because they all share one candidate set.
+Route metrics are length-weighted means over the 10 student-test trips. They take the classifier's best arc per reading, without the HMM, as defined in `scripts/knn/knn_sequence_metrics.py`. The candidate miss rate is 0.13 % for every model, because they all share one candidate set. Timings are single local runs on a 12-core laptop.
 
 ![Top-1 accuracy per model](../../results/ensemble/all_models_top1.png)
 
 ## Reading the results
 
-- **Stacking gives the best cross-validation Top-1, but only by 0.11 points over boosting.** That is far smaller than the fold-to-fold spread of about 4 points, so the Top-1 gain is not meaningful.
-- **On the student test, boosting alone is 0.15 points ahead of stacking on Top-1.** Stacking is still best on log loss, route F1, route mismatch and continuity.
-- **The base models agree with each other on 92 to 94 % of readings.** They make many of the same mistakes, which caps what averaging can recover. Fold 3 is hardest for every model.
-- **The meta-learner leans mostly on boosting.** Logistic regression and KNN add little once boosting and the tree are present.
-- **The stacked ensemble is the candidate to pass to the HMM stage.** It gives the best-calibrated probabilities (lowest log loss), and Viterbi uses those probabilities directly as emissions. Boosting alone is the cheaper fallback. It is about 140 times faster at inference, because the ensemble has to run the KNN.
+- **Stacking and tuned boosting are effectively the same model.** Stacking leads cross-validation Top-1 by 0.03 points and log loss by 0.001. Boosting leads student-test Top-1 by 0.03 points. All of these differences are far smaller than the 4-point spread between folds.
+- **Stacking is exported because the selection rule, fixed before the test run, picks it.** It also has the lowest log loss, and the HMM uses the probabilities directly.
+- **Tuned boosting alone is the practical fallback.** It gives the same accuracy and scores 10 trips in 0.7 s instead of 52 s, because it skips the KNN. The API lets the evaluator choose any model.
+- **Averaging hurts.** The equal-weight soft vote is worse than boosting alone, because it gives the weaker logistic regression and KNN a quarter of the vote each.
+- **The base models agree on 92 to 95 % of readings.** They make many of the same mistakes, which caps what any ensemble can recover. Fold 3 is the hardest for every model.
 
 ![Agreement between base models](../../results/ensemble/base_model_agreement.png)
 
@@ -69,8 +71,8 @@ Route metrics are length-weighted means over the 10 student-test trips. They tak
 
 ```bash
 export PATHSNAP_DATA_ROOT="/path/to/Student folder"   # contains train/ and student_test/
-python scripts/ensemble/compare_all_models.py          # about 10 minutes; builds the feature cache if needed
+python scripts/ensemble/compare_all_models.py          # about 25 minutes; builds the feature cache if needed
 python scripts/ensemble/plot_ensemble.py
 ```
 
-Outputs go to `results/ensemble/`: the full metrics JSON, the comparison CSV, per-model student-test probabilities for the HMM stage, the plots, the run log and the exported ensemble. The reference run used Python 3.12 with scikit-learn 1.4.2 and NumPy 1.26.4.
+Outputs go to `results/ensemble/`: the full metrics JSON, the comparison CSV, per-model student-test and out-of-fold training probabilities for the HMM stage, the plots, the run log and `trained_models.joblib` (git-ignored, about 65 MB; the compressed bundle in `models/pathsnap_v1/` holds the same models). The reference run used Python 3.12 with scikit-learn 1.4.2 and NumPy 1.26.4.

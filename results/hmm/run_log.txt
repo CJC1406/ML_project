@@ -1,0 +1,36 @@
+built 80 training lattices in 54s
+[I 2026-11-18 19:33:15,886] A new study created in memory with name: no-name-c7dcd6b7-edea-4aff-b04a-7dc5ce6c4fd5
+trial 0: alpha=1.000 beta=10.00 top1=0.9200
+trial 1: alpha=0.433 beta=148.86 top1=0.8997
+trial 2: alpha=1.752 beta=18.06 top1=0.9068
+trial 3: alpha=0.184 beta=1.27 top1=0.9186
+trial 4: alpha=0.126 beta=89.70 top1=0.9190
+trial 5: alpha=1.050 beta=34.79 top1=0.9056
+trial 6: alpha=0.108 beta=167.01 top1=0.9146
+trial 7: alpha=2.596 beta=1.78 top1=0.9301
+trial 8: alpha=0.204 beta=1.50 top1=0.9210
+trial 9: alpha=0.329 beta=11.60 top1=0.9310
+trial 10: alpha=0.338 beta=5.27 top1=0.9310
+trial 11: alpha=0.309 beta=8.44 top1=0.9309
+trial 12: alpha=0.581 beta=3.26 top1=0.9311
+trial 13: alpha=0.963 beta=2.29 top1=0.9310
+trial 14: alpha=0.119 beta=7.57 top1=0.9314
+trial 15: alpha=0.183 beta=4.05 top1=0.9288
+trial 16: alpha=0.102 beta=12.60 top1=0.9299
+trial 17: alpha=0.871 beta=0.60 top1=0.9285
+trial 18: alpha=1.578 beta=5.05 top1=0.9228
+trial 19: alpha=0.489 beta=27.41 top1=0.9179
+trial 20: alpha=0.632 beta=5.51 top1=0.9311
+trial 21: alpha=0.617 beta=2.98 top1=0.9311
+trial 22: alpha=0.116 beta=0.59 top1=0.9086
+trial 23: alpha=3.838 beta=0.90 top1=0.9310
+trial 24: alpha=4.722 beta=3.08 top1=0.9172
+train (OOF stacking): classifier top1=0.8540 -> hmm 0.9314
+Logistic Regression          top1 0.8521 -> 0.9179   route F1 0.830 -> 0.986   mismatch 0.448 -> 0.028
+KNN (Optuna-tuned)           top1 0.8567 -> 0.9128   route F1 0.833 -> 0.986   mismatch 0.436 -> 0.028
+Decision Tree                top1 0.8634 -> 0.9203   route F1 0.847 -> 0.987   mismatch 0.391 -> 0.026
+Hist. Gradient Boosting      top1 0.8721 -> 0.9358   route F1 0.860 -> 0.987   mismatch 0.348 -> 0.026
+Ensemble: soft vote          top1 0.8646 -> 0.9245   route F1 0.847 -> 0.986   mismatch 0.390 -> 0.028
+Ensemble: stacking           top1 0.8718 -> 0.9364   route F1 0.862 -> 0.987   mismatch 0.344 -> 0.026
+
+HMM parameters: alpha=0.119 beta=7.57 (tuned 1.9 min)
