@@ -24,6 +24,7 @@ python3 -m venv .venv
 .venv/bin/pytest
 .venv/bin/python -m pathsnap.cli validate data/raw
 .venv/bin/python -c 'from pathlib import Path; from src.eda import explore_dataset; explore_dataset(Path("data/raw"), Path("data/processed/eda.json"))'
+.venv/bin/python scripts/preprocess_training.py
 ```
 
 The API and React application are intentionally separate: Laptop 1 runs the Python service; Laptop 2 runs the evaluator UI. See `docs/architecture.md`.
@@ -37,6 +38,13 @@ The API and React application are intentionally separate: Laptop 1 runs the Pyth
 5. Integrate the trained scorer with HMM/Viterbi, Folium, FastAPI, and the evaluator UI.
 
 No model metrics are reported until real data has been loaded and evaluated.
+
+The dataset-aware preprocessing command reads `PATHSNAP_TRAIN_ROOT` (defaulting to
+the local training path used during development) and writes ignored artifacts under
+`data/processed/train/`: `track_features.csv`, projected node coordinates, arc tables,
+per-trip CRS metadata, and `manifest.json`. It preserves elapsed timestamps, computes
+time gaps, movement distance, valid GPS bearings, speeds, and large-gap flags. It does
+not join `.route` files to observations or create supervised labels.
 
 Phase 2 candidate generation uses a spatial index for coarse nearby-segment queries,
 then ranks candidates by metre-scale point-to-segment distance and optional heading

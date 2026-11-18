@@ -30,5 +30,5 @@ def test_parallel_directed_arcs_and_ids_survive():
 def test_geometry_and_candidate_ordering():
     nodes, arcs, track = frames()
     road = build_road_geometry(nodes, arcs)
-    candidates = generate_candidates(track, road, radius_m=200, max_candidates=None)
+    candidates = generate_candidates(track, road, radius_m=50, max_candidates=None)
     assert [c.arc_id for c in candidates] == [10, 11]
