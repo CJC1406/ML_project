@@ -1,0 +1,10 @@
+Only train and student_test inspected.
+Trip IDs shared between partitions: []
+Raw row order preserved. Missing or ambiguous file types are flagged by files != 1 in inventory.
+GPS distance sums spherical great-circle steps (mean Earth radius 6371.0088 km). Noise and gaps affect this estimate.
+Malformed rows interrupt adjacency. A gap above 10 s is a descriptive review flag.
+Arc direction follows the two endpoint columns. Reference breaks count adjacent usable arcs with mismatched endpoints.
+Reference arcs describe traversal order; no per-observation labels inferred or independently verified.
+Browser-rendered Folium map generated (requires internet on first open).
+train largest gaps: 00000090 (153064 s), 00000078 (52810 s), 00000069 (2658 s)
+student_test largest gaps: 00000065 (210 s), 00000076 (32 s), 00000056 (3 s)

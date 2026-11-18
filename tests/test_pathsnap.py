@@ -27,3 +27,8 @@ def test_viterbi_prefers_connected_sequence():
     emissions = [{"A": .9, "B": .1}, {"A": .2, "B": .8}, {"A": .1, "B": .9}]
     transitions = {("A", "A"): .9, ("A", "B"): .1, ("B", "A"): .1, ("B", "B"): .9}
     assert viterbi(emissions, transitions) == ["A", "B", "B"]
+
+
+def test_viterbi_rejects_no_valid_path():
+    with pytest.raises(ValueError, match="no valid Viterbi path"):
+        viterbi([{"A": 1.0}, {"B": 1.0}], {})

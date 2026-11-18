@@ -1,7 +1,5 @@
-from dataclasses import dataclass
-from pathlib import Path
-import re
-import pandas as pd
+"""Compatibility import; implementation lives in pathsnap.data.loader."""
+from pathsnap.data.loader import *
 
 
 class DatasetLoadError(ValueError):
@@ -31,25 +29,36 @@ def _read(path: Path, kind: str) -> pd.DataFrame:
     if path.stat().st_size == 0:
         raise DatasetLoadError(f"Empty {kind} file: {path}")
     names = SCHEMAS[kind]
-    raw = pd.read_csv(path, sep=r"\s+|,|;|\t", engine="python", header=None, comment="#")
+    raw = pd.read_csv(path, sep=r"\s+|,|;|\t", engine="python", header=None, comment="#", on_bad_lines="error")
     if raw.empty:
         raise DatasetLoadError(f"Empty {kind} file: {path}")
     first = [str(x).strip().lower() for x in raw.iloc[0].tolist()]
     known = set(names) | {"lat", "lon", "lng", "time", "timestamp"}
     has_header = any(x in known for x in first)
     if has_header:
-        raw = pd.read_csv(path, sep=r"\s+|,|;|\t", engine="python", comment="#")
+        raw = pd.read_csv(path, sep=r"\s+|,|;|\t", engine="python", comment="#", on_bad_lines="error")
         raw.columns = [str(x).strip().lower() for x in raw.columns]
         aliases = {"lon": "longitude", "lng": "longitude", "lat": "latitude", "time": "timestamp"}
         raw = raw.rename(columns=aliases)
         missing = set(names) - set(raw.columns)
         if missing:
             raise DatasetLoadError(f"{kind} missing columns {sorted(missing)}: {path}")
-        return raw[names].copy()
-    if raw.shape[1] != len(names):
-        raise DatasetLoadError(f"{kind} expected {len(names)} columns, found {raw.shape[1]}: {path}")
-    raw.columns = names
-    return raw
+        preserved_id = None
+        if kind == "arcs" and "arc_id" in raw.columns:
+            preserved_id = pd.to_numeric(raw["arc_id"], errors="coerce")
+        if kind == "nodes" and "node_id" in raw.columns:
+            preserved_id = pd.to_numeric(raw["node_id"], errors="coerce")
+        result = raw[names].copy()
+    else:
+        if raw.shape[1] != len(names):
+            raise DatasetLoadError(f"{kind} expected {len(names)} columns, found {raw.shape[1]}: {path}")
+        raw.columns = names
+        result = raw
+    if kind == "arcs":
+        result.insert(0, "arc_id", preserved_id if 'preserved_id' in locals() and preserved_id is not None else pd.RangeIndex(len(result), name="arc_id"))
+    elif kind == "nodes":
+        result.insert(0, "node_id", preserved_id if 'preserved_id' in locals() and preserved_id is not None else pd.RangeIndex(len(result), name="node_id"))
+    return result.reset_index(drop=True)
 
 
 def discover_trip_directories(root: Path) -> list[Path]:
