@@ -16,7 +16,7 @@ def parse_timestamps(values: pd.Series) -> pd.Series:
     return result
 
 
-def integer_ids(values: pd.Series, field: str, report: ValidationReport) -> set[int]:
+def integer_ids(values: pd.Series, field: str, report: "ValidationReport") -> set[int]:
     numeric = pd.to_numeric(values, errors="coerce")
     bad = numeric.isna() | (numeric % 1 != 0)
     if bad.any():
