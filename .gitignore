@@ -24,3 +24,6 @@ results/knn/knn_model.joblib
 
 results/knn_tuned/knn_model.joblib
 results/ensemble/*.joblib
+
+# Exported serving bundle is committed (the backend needs it); only the large training dump stays ignored.
+!models/pathsnap_v1/

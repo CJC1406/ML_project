@@ -1,101 +1,119 @@
 # PathSnap
 
-PathSnap is a working, data-first map-matching system: noisy GPS observations are matched to a supplied road network and reconstructed as a connected route. The repository deliberately does not include fake trips, fake labels, or invented benchmark numbers.
+PathSnap matches noisy GPS observations to a supplied road network and rebuilds the connected route the
+vehicle drove. Each GPS reading gets a set of nearby candidate road arcs. A trained classifier scores how
+likely each candidate is to be the true arc, and an HMM/Viterbi decoder then picks the most probable
+connected sequence of arcs. The system runs on two laptops: a FastAPI backend (Laptop 1) and a React
+evaluator UI (Laptop 2).
 
-## Current status
+Course: UE24CS352A, PES University.
 
-The real training partition has now been inspected and preprocessed. Completed work:
+## What is in the repository
 
-- strict loaders for `.track`, `.nodes`, `.arcs`, and `.route` inputs;
-- schema validation with actionable errors;
-- a dependency-free Viterbi decoder;
-- a small FastAPI service surface (optional dependency);
-- a browser frontend stub that calls the API;
-- tests for validation, geometry, candidates, and Viterbi decoding; currently 10 tests pass locally.
-- reusable EDA, road geometry, candidate generation, and Folium map utilities.
+| Component | Where |
+|---|---|
+| Data loading, validation, preprocessing | `src/pathsnap/data/`, `scripts/preprocess_training.py`, `analysis/eda/`, `docs/eda/` |
+| Candidate generation and feature engineering | `src/pathsnap/map_matching/`, `src/pathsnap/features/candidate_features.py`, `scripts/build_candidate_features.py` |
+| Model training (logistic regression, KNN, decision tree, histogram gradient boosting, soft-vote and stacking ensembles) | `src/pathsnap/models/`, `scripts/knn/`, `scripts/ensemble/` |
+| Model evaluation and comparison | `scripts/ensemble/compare_all_models.py`, `results/ensemble/model_comparison.csv` |
+| Bayesian hyperparameter optimisation (Optuna, TPE) | `scripts/knn/knn_optuna.py`, `scripts/hgb/hgb_optuna.py`, `results/knn_tuned/`, `results/hgb_tuned/` |
+| HMM and Viterbi route reconstruction | `src/pathsnap/matching/hmm.py`, `scripts/hmm/run_hmm.py`, `results/hmm/` |
+| Exported model bundle (weights, HMM config, manifest with checksums) | `models/pathsnap_v1/`, `scripts/export_model.py` |
+| Backend API | `src/pathsnap/api.py`, `src/pathsnap/serving/`, `scripts/run_backend.sh`, `docs/BACKEND_API.md` |
+| Evaluator UI | `frontend/` |
+| Folium maps and plots | `src/pathsnap/serving/maps.py`, `scripts/make_maps.py`, `scripts/*/plot_*.py` |
+| Technical report | `docs/report/` |
+| Tests | `tests/` |
 
-Not started yet: route/GPS alignment, supervised-label generation, ML training, five-model comparison, Optuna, and the production evaluator workflow.
+Every split is by trip, never by individual GPS point. The evaluator partition is never read during
+training, tuning or model selection. Reference `.route` files are read only by the backend to compute
+aggregate metrics and are never sent to the UI.
 
-Phase 3 exploratory training components are now present, but they must be run and reviewed as provisional because the route/GPS alignment is not independently verified.
+## Installation
 
-Dataset-specific column assumptions remain isolated in `pathsnap/data/schema.py`. Put real trips under `data/raw/` only after inspecting their format. Ground-truth route files must stay on the backend/evaluation side and must never be sent to the frontend.
-
-## Run
+Requires Python 3.10+ and Node.js 18+.
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
-.venv/bin/pytest
-.venv/bin/python -m pathsnap.cli validate data/raw
-.venv/bin/python -c 'from pathlib import Path; from src.eda import explore_dataset; explore_dataset(Path("data/raw"), Path("data/processed/eda.json"))'
-.venv/bin/python scripts/preprocess_training.py
-```
-
-Set the dataset path locally before running data commands:
-
-```bash
-export PATHSNAP_TRAIN_ROOT="/absolute/path/to/Student folder/train"
-```
-
-Run the test suite with:
-
-```bash
+.venv/bin/pip install -e .
 .venv/bin/python -m pytest -q
 ```
 
-Expected current result: `10 passed`.
+```bash
+cd frontend && npm install
+```
 
-The API and React application are intentionally separate: Laptop 1 runs the Python service (`scripts/run_backend.sh`); Laptop 2 runs the evaluator UI (`frontend/README.md`). See `docs/architecture.md` and `docs/BACKEND_API.md`.
+## Running the system on two laptops
 
-## Planned, evidence-backed phases
+Both laptops must be on the same network. Guest and university Wi-Fi often block traffic between
+devices; a phone hotspot works as a fallback.
 
-1. Inspect the supplied dataset and freeze its schema.
-2. Add candidate generation and leakage-safe trip-level splits.
-3. Train and compare five independently configured models.
-4. Add Optuna studies with persisted configurations and results.
-5. Integrate the trained scorer with HMM/Viterbi, Folium, FastAPI, and the evaluator UI.
+**Laptop 1, backend.** The trained bundle in `models/pathsnap_v1/` is loaded automatically.
 
-No model metrics are reported until real data has been loaded and evaluated.
+```bash
+PATHSNAP_EVALUATOR_ROOT="/path/to/evaluator_trips" scripts/run_backend.sh
+```
 
-The dataset-aware preprocessing command reads `PATHSNAP_TRAIN_ROOT` (defaulting to
-the local training path used during development) and writes ignored artifacts under
-`data/processed/train/`: `track_features.csv`, projected node coordinates, arc tables,
-per-trip CRS metadata, and `manifest.json`. It preserves elapsed timestamps, computes
-time gaps, movement distance, valid GPS bearings, speeds, and large-gap flags. It does
-not join `.route` files to observations or create supervised labels.
+The script binds `0.0.0.0:8000` and prints the address Laptop 2 should use. Each trip is one sub-folder
+holding `.track`, `.nodes`, `.arcs` and `.route` files. Request logs appear in this terminal.
 
-Candidate generation uses each trip's local projected CRS and a metric spatial index,
-then ranks candidates by exact projected point-to-segment distance and optional
-heading difference. It is deterministic and preserves observations with no candidates
-by returning no rows for that observation. The selected EPSG/CRS is recorded per trip.
+**Laptop 2, UI.**
 
-## Final repository shape
+```bash
+cd frontend
+echo "VITE_API_BASE_URL=http://<laptop-1-ip>:8000" > .env.local
+npm run dev
+```
+
+Open http://localhost:5173, select a trip, choose a model and decoder, and run the prediction. The UI
+shows the predicted route on a map and the evaluation metrics the backend computes. The Vite server
+proxies `/api/*` to Laptop 1, so no CORS configuration is needed.
+
+To check the backend from Laptop 2, run `curl http://<laptop-1-ip>:8000/health` or open
+`http://<laptop-1-ip>:8000/docs`.
+
+## Reproducing the experiments
+
+Point the scripts at the dataset folder that contains `train/` and `student_test/`:
+
+```bash
+export PATHSNAP_DATA_ROOT="/path/to/Student folder"
+```
+
+Run in this order from the repository root:
+
+```bash
+python scripts/build_candidate_features.py        # candidate rows, labels, features -> data/processed/
+python scripts/knn/run_knn.py                     # KNN baseline, CV and student test -> results/knn/
+python scripts/knn/knn_optuna.py                  # KNN Bayesian tuning               -> results/knn_tuned/
+python scripts/hgb/hgb_optuna.py                  # HGB Bayesian tuning               -> results/hgb_tuned/
+python scripts/ensemble/compare_all_models.py     # all models + ensembles            -> results/ensemble/
+python scripts/hmm/run_hmm.py                     # HMM tuning, classifier vs HMM     -> results/hmm/
+python scripts/export_model.py                    # deployable bundle                 -> models/pathsnap_v1/
+python scripts/make_maps.py                       # Folium maps                       -> results/maps/
+```
+
+All scripts use seed 42. Logs, configurations, trial histories and metrics are written next to their
+results.
+
+## Repository layout
 
 ```text
 src/pathsnap/
-  data/          # raw-data boundary, schema, loaders, leakage checks
-  features/      # spatial, temporal, direction and connectivity features
-  models/        # five isolated model factories and training artifacts
-  tuning/        # Optuna studies and immutable experiment manifests
-  matching/      # candidate generation, HMM emissions, Viterbi decoding
-  evaluation/    # backend-only labels, metrics and trip-level CV
-  visualisation/ # Folium map generation
-  api.py         # FastAPI prediction/evaluation boundary
-frontend/        # React evaluator, no ground truth bundled
-configs/         # versioned training and deployment configuration
-data/raw/        # supplied inputs, gitignored
-data/private/    # evaluator labels, backend-only, gitignored
-experiments/     # configs, logs and results, no invented values
-tests/           # unit and integration tests
-docs/            # decisions and two-laptop deployment
+  data/          loaders, schema, validation
+  geo/           projections, distances, road geometry
+  map_matching/  candidate generation
+  features/      candidate features used by every model
+  models/        model definitions (KNN, ensemble, estimators)
+  matching/      HMM and Viterbi decoding
+  training/      group-aware splits and evaluation helpers
+  serving/       model bundle, single-trip predictor, Folium maps
+  api.py         FastAPI backend
+frontend/        React + Leaflet evaluator UI (Laptop 2)
+scripts/         training, tuning, evaluation, export and plotting entry points
+results/         metrics, logs, Optuna trials and plots from actual runs
+models/          exported model bundle used by the backend
+docs/            EDA findings, architecture, API, report
+tests/           unit and API tests
 ```
-
-## KNN model (candidate classifier)
-```bash
-export PATHSNAP_DATA_ROOT=/path/to/dataset      # folder containing train/ and student_test/
-python3 scripts/build_candidate_features.py     # ~40 s, builds data/processed/candidate_features/
-python3 scripts/knn/run_knn.py --quick          # fast demo (~2 min)
-python3 scripts/knn/run_knn.py                  # full run: CV + student test + sequence metrics (~6 min)
-python3 scripts/knn/knn_sweep.py                # k sweep for over/underfitting evidence (~10 min)
-```
-Outputs: `results/knn/` · Report section: `docs/report/knn.md`
