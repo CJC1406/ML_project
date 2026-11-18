@@ -1,0 +1,11 @@
+project:
+  name: pathsnap
+  python_version: "3.12"
+  random_seed: 42
+data:
+  root: data/raw
+  processed_root: data/processed
+  delimiter: auto
+  has_header: auto
+logging:
+  level: INFO
