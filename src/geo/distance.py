@@ -1,4 +1,5 @@
-from math import atan2, cos, degrees, radians, sin, sqrt
+"""Compatibility import; implementation lives in pathsnap.geo.distance."""
+from pathsnap.geo.distance import *
 
 EARTH_RADIUS_M = 6_371_000.0
 

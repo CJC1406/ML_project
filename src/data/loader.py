@@ -1,6 +1,5 @@
-from dataclasses import dataclass
-from pathlib import Path
-import pandas as pd
+"""Compatibility import; implementation lives in pathsnap.data.loader."""
+from pathsnap.data.loader import *
 
 
 class DatasetLoadError(ValueError):

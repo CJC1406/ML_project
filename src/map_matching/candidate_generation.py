@@ -1,7 +1,5 @@
-from dataclasses import dataclass
-from shapely.geometry import Point
-from pathsnap.geo.distance import bearing_deg, heading_difference_deg, point_to_segment_m
-from pathsnap.geo.geometry import RoadGeometry, query_geometry
+"""Compatibility import; implementation lives in pathsnap.map_matching.candidate_generation."""
+from pathsnap.map_matching.candidate_generation import *
 
 
 @dataclass(frozen=True)

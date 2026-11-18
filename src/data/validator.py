@@ -1,7 +1,5 @@
-from __future__ import annotations
-from dataclasses import dataclass, field
-import pandas as pd
-from .loader import TripData
+"""Compatibility import; implementation lives in pathsnap.data.validator."""
+from pathsnap.data.validator import *
 
 
 def parse_timestamps(values: pd.Series) -> pd.Series:

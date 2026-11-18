@@ -1,5 +1,5 @@
-import networkx as nx
-import pandas as pd
+"""Compatibility import; implementation lives in pathsnap.geo.road_network."""
+from pathsnap.geo.road_network import *
 
 
 def build_graph(nodes: pd.DataFrame, arcs: pd.DataFrame) -> nx.MultiDiGraph:

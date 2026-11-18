@@ -1,7 +1,5 @@
-from dataclasses import dataclass
-import pandas as pd
-from shapely.geometry import LineString, Point
-from shapely.strtree import STRtree
+"""Compatibility import; implementation lives in pathsnap.geo.geometry."""
+from pathsnap.geo.geometry import *
 
 
 @dataclass
