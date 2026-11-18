@@ -1,0 +1,115 @@
+{
+  "model": "KNN (classifier only, no HMM)",
+  "split": "student_test",
+  "per_trip": [
+    {
+      "trip": "00000000",
+      "route_precision": 0.9255314574205592,
+      "route_recall": 0.9951515982337663,
+      "route_f1": 0.959079746506038,
+      "route_mismatch_fraction": 0.08491860205159849,
+      "route_continuity": 0.767175572519084,
+      "predicted_arcs": 263,
+      "reference_arcs": 179
+    },
+    {
+      "trip": "00000007",
+      "route_precision": 0.9790530219913754,
+      "route_recall": 0.993022570214311,
+      "route_f1": 0.9859883182130694,
+      "route_mismatch_fraction": 0.028223288256192455,
+      "route_continuity": 0.9895833333333334,
+      "predicted_arcs": 193,
+      "reference_arcs": 123
+    },
+    {
+      "trip": "00000009",
+      "route_precision": 0.8163417536942655,
+      "route_recall": 0.9253077597973373,
+      "route_f1": 0.8674160369103591,
+      "route_mismatch_fraction": 0.28286534869358576,
+      "route_continuity": 0.7579908675799086,
+      "predicted_arcs": 439,
+      "reference_arcs": 429
+    },
+    {
+      "trip": "00000040",
+      "route_precision": 0.8872828177015051,
+      "route_recall": 0.9966676393023293,
+      "route_f1": 0.9387997099652798,
+      "route_mismatch_fraction": 0.12994539292258248,
+      "route_continuity": 0.8752362948960303,
+      "predicted_arcs": 530,
+      "reference_arcs": 309
+    },
+    {
+      "trip": "00000052",
+      "route_precision": 0.9371234921404523,
+      "route_recall": 0.9692486116711669,
+      "route_f1": 0.9529153746065564,
+      "route_mismatch_fraction": 0.09578333818466234,
+      "route_continuity": 0.8,
+      "predicted_arcs": 86,
+      "reference_arcs": 95
+    },
+    {
+      "trip": "00000056",
+      "route_precision": 0.8766735405767498,
+      "route_recall": 0.9632499561238985,
+      "route_f1": 0.9179248496036009,
+      "route_mismatch_fraction": 0.17225568095761837,
+      "route_continuity": 0.7532917532917532,
+      "predicted_arcs": 1444,
+      "reference_arcs": 1323
+    },
+    {
+      "trip": "00000065",
+      "route_precision": 0.800127496215059,
+      "route_recall": 0.9739902324830869,
+      "route_f1": 0.8785396295278338,
+      "route_mismatch_fraction": 0.26931332519910905,
+      "route_continuity": 0.7942583732057417,
+      "predicted_arcs": 210,
+      "reference_arcs": 145
+    },
+    {
+      "trip": "00000076",
+      "route_precision": 0.7309874483062613,
+      "route_recall": 0.9567512618056276,
+      "route_f1": 0.8287694763897742,
+      "route_mismatch_fraction": 0.39534520561100944,
+      "route_continuity": 0.7172557172557172,
+      "predicted_arcs": 482,
+      "reference_arcs": 374
+    },
+    {
+      "trip": "00000077",
+      "route_precision": 0.6771941400295488,
+      "route_recall": 0.9915993490951236,
+      "route_f1": 0.8047793484819448,
+      "route_mismatch_fraction": 0.4810776303849765,
+      "route_continuity": 0.8838977194194886,
+      "predicted_arcs": 1448,
+      "reference_arcs": 268
+    },
+    {
+      "trip": "00000091",
+      "route_precision": 0.8459610571395805,
+      "route_recall": 0.9735710226737153,
+      "route_f1": 0.9052911797257562,
+      "route_mismatch_fraction": 0.2037041011236823,
+      "route_continuity": 0.7035714285714286,
+      "predicted_arcs": 281,
+      "reference_arcs": 232
+    }
+  ],
+  "mean": {
+    "route_precision": 0.8476276225215358,
+    "route_recall": 0.9738560001400363,
+    "route_f1": 0.9039503669930212,
+    "route_mismatch_fraction": 0.21434319133850172,
+    "route_continuity": 0.8042261060072485,
+    "predicted_arcs": 537.6,
+    "reference_arcs": 347.7
+  }
+}

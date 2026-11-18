@@ -1,0 +1,2 @@
+Model,Algorithm Family,Key Configuration,CV Macro F1,Top-1 Accuracy,Route continuity,Student-Test Macro F1,Log Loss,Inference Time
+KNN,Instance-based (non-parametric),"k=25, distance-weighted, Euclidean, StandardScaler, trained on every 10th observation (120,124 rows)",0.901 ± 0.030,0.853,0.807,0.910,0.139,83.8 s (131,570 candidate rows; ~0.64 ms/row)

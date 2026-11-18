@@ -18,3 +18,6 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+
+# KNN model is ~25 MB; regenerate with scripts/knn/run_knn.py
+results/knn/knn_model.joblib
